@@ -1,6 +1,6 @@
 # Collections — ProcessWire Module
 
-**Version:** 1.7 · **Requires:** ProcessWire 3.0.244+, PHP 8.2+  
+**Requires:** ProcessWire 3.0.244+, PHP 8.2+  
 **Author:** Maxim Semenov · [smnv.org](https://smnv.org) · maxim@smnv.org  
 **GitHub:** [github.com/mxmsmnv/Collections](https://github.com/mxmsmnv/Collections)
 
