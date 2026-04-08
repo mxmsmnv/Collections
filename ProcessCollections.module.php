@@ -143,18 +143,16 @@ class ProcessCollections extends Process
         $input        = $this->wire('input');
         $params       = QueryParams::fromInput($input);
 
-        // Apply default per-page
-        if (!$input->get('per_page')) {
-            $defaultPP = $collection->perPage > 0 ? $collection->perPage : ($globalConfig['default_per_page'] ?? 25);
-            $params    = new QueryParams(
-                page:    $params->page,
-                perPage: $defaultPP,
-                search:  $params->search,
-                sortBy:  $params->sortBy ?: $collection->sortBy,
-                sortDir: $params->sortDir ?: $collection->sortDir,
-                filters: $params->filters,
-            );
-        }
+        // Apply collection defaults for sort — always, not just when per_page is absent
+        $defaultPP  = $collection->perPage > 0 ? $collection->perPage : ($globalConfig['default_per_page'] ?? 25);
+        $params = new QueryParams(
+            page:    $params->page,
+            perPage: $input->get('per_page') ? $params->perPage : $defaultPP,
+            search:  $params->search,
+            sortBy:  $params->sortBy ?: $collection->sortBy,
+            sortDir: $params->sortDir ?: $collection->sortDir,
+            filters: $params->filters,
+        );
 
         $query    = new CollectionQuery($this->wire('pages'));
         $renderer = new CollectionRenderer($collection, $globalConfig, $this->perms, $this->wire());

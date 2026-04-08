@@ -65,14 +65,14 @@
 
     // ── Filter dropdowns ──────────────────────────────────────────────────────
 
-    document.querySelectorAll('.collections-filter').forEach(sel => {
-        sel.addEventListener('change', function() {
-            const params = getCurrentParams();
-            const field  = this.dataset.field;
-            params[`filter[${field}]`] = this.value;
-            params['page'] = 1;
-            fetchTable(params);
-        });
+    document.addEventListener('change', function(e) {
+        const sel = e.target.closest('.collections-filter');
+        if (!sel) return;
+        const params = getCurrentParams();
+        const field  = sel.dataset.field;
+        params[`filter[${field}]`] = sel.value;
+        params['page'] = 1;
+        fetchTable(params);
     });
 
     // ── Sort links (async) ────────────────────────────────────────────────────
