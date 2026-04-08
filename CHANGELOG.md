@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.8.1 — 2026-04-07
+
+### Fixed
+- **Default sort not applied on first load** — `sortBy`/`sortDir` from collection settings were only applied when `per_page` was absent from URL. Now always applied as fallback when not explicitly set in request params.
+- **Default sort direction ignored** — `QueryParams::fromInput` returned `'asc'` as hardcoded default for `dir`, preventing collection's `sortDir` from taking effect. Now returns empty string so collection default wins.
+- **Filter dropdowns not firing** — used `querySelectorAll` at script load time before DOM was ready. Replaced with `document.addEventListener('change')` event delegation.
+- **Export ignores active filters** — export links now include all current `filter[]` and `q` params. Export links also update dynamically after AJAX table refresh.
+- **Array to string warning** — `PageArray::each('id')` returns array in PW 3.0.240+. Now explicitly converted to pipe-separated string.
+
+### Added
+- **"Search in related page titles" option** per collection — controls whether Page reference columns are automatically included in search. Enabled by default (existing behavior preserved). Can be disabled per collection in Configure.
+
+---
+
 ## 1.8 — 2026-04-05
 
 ### Fixed
