@@ -484,6 +484,7 @@ class ProcessCollections extends Process
             'perPage'       => (int) $post->text('perPage'),
             'order'         => (int) $post->text('order'),
             'exportEnabled' => (bool) $post->text('exportEnabled'),
+            'searchRelated' => (bool) $post->text('searchRelated'),
             'roleAccess'    => $existing ? $existing->roleAccess : [],
             'columnLabels'  => $existing ? $existing->columnLabels : [],
             'columnTypes'   => $existing ? $existing->columnTypes : [],

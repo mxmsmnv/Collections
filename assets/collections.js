@@ -345,6 +345,9 @@
         const expCheck = document.getElementById('field-exportEnabled');
         if (expCheck) expCheck.checked = data.exportEnabled !== false;
 
+        const relCheck = document.getElementById('field-searchRelated');
+        if (relCheck) relCheck.checked = data.searchRelated !== false;
+
         const title = document.getElementById('modal-collection-title');
         if (title) title.textContent = `Edit: ${data.label || data.key}`;
 
@@ -371,6 +374,9 @@
 
         const expCheck = document.getElementById('field-exportEnabled');
         if (expCheck) expCheck.checked = true;
+
+        const relCheck = document.getElementById('field-searchRelated');
+        if (relCheck) relCheck.checked = true;
 
         const title = document.getElementById('modal-collection-title');
         if (title) title.textContent = 'Add Collection';

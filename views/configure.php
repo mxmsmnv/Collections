@@ -529,6 +529,12 @@ namespace ProcessWire;
                     Enable CSV / JSON export for this collection
                 </label>
             </div>
+            <div class="uk-margin">
+                <label>
+                    <input type="checkbox" name="searchRelated" value="1" id="field-searchRelated" class="uk-checkbox" checked>
+                    Search in related page titles (e.g. find by category name)
+                </label>
+            </div>
 
             <div class="uk-modal-footer uk-text-right">
                 <button type="button" class="ui-button ui-state-default ui-priority-secondary uk-modal-close"><span class="ui-button-text">Cancel</span></button>

@@ -21,6 +21,7 @@ final class Collection
         public readonly array  $columnTypes,
         public readonly bool   $exportEnabled,
         public readonly int    $order,
+        public readonly bool   $searchRelated,
     ) {}
 
     public function toArray(): array
@@ -42,6 +43,7 @@ final class Collection
             'columnTypes'   => $this->columnTypes,
             'exportEnabled' => $this->exportEnabled,
             'order'         => $this->order,
+            'searchRelated' => $this->searchRelated,
         ];
     }
 
@@ -65,6 +67,7 @@ final class Collection
             columnTypes:   $data['columnTypes'] ?? [],
             exportEnabled: (bool) ($data['exportEnabled'] ?? true),
             order:         (int) ($data['order'] ?? 0),
+            searchRelated: (bool) ($data['searchRelated'] ?? true),
         );
     }
 
@@ -87,12 +90,14 @@ final class Collection
             // Sanitize search value
             $safeSearch = wire('sanitizer')->selectorValue($search);
 
-            // Collect all searchable fields including Page ref columns
+            // Collect all searchable fields, optionally including Page ref columns
             $allSearchFields = $fields;
-            foreach ($this->columns as $col) {
-                $field = wire('fields')->get($col);
-                if ($field && $field->type->className() === 'FieldtypePage' && !in_array($col, $allSearchFields)) {
-                    $allSearchFields[] = $col;
+            if ($this->searchRelated) {
+                foreach ($this->columns as $col) {
+                    $field = wire('fields')->get($col);
+                    if ($field && $field->type->className() === 'FieldtypePage' && !in_array($col, $allSearchFields)) {
+                        $allSearchFields[] = $col;
+                    }
                 }
             }
 
@@ -114,7 +119,9 @@ final class Collection
             if ($pageRefFields) {
                 $refMatches = wire('pages')->find("title%={$safeSearch}, include=all, limit=50");
                 if ($refMatches->count()) {
-                    $refIdStr = $refMatches->each('id'); // "1|2|3"
+                    $refIdRaw = $refMatches->each('id');
+                    // each('id') returns array in newer PW versions, string "1|2|3" in older
+                    $refIdStr = is_array($refIdRaw) ? implode('|', $refIdRaw) : (string)$refIdRaw;
                     foreach ($pageRefFields as $f) {
                         $pageRefParts[$f] = $refIdStr;
                     }
