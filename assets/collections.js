@@ -145,6 +145,12 @@
             }
             resultEl.style.opacity = '1';
             history.replaceState(null, '', url);
+            // Update export links to reflect current filters/search
+            const exportBase = url.replace(/&export=(csv|json)/, '');
+            document.querySelectorAll('.collections-export').forEach(function(a) {
+                const fmt = a.dataset.format;
+                a.href = exportBase + '&export=' + fmt;
+            });
             // Reset checkboxes and bulk bar after table reload
             const checkAll = resultEl.querySelector('.collections-check-all');
             if (checkAll) checkAll.checked = false;
