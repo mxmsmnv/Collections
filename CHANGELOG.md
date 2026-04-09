@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.2 — 2026-04-09
+
+### Changed
+- **CSS fully migrated to UIkit design system variables** — all hardcoded colors replaced with `--pw-*` CSS custom properties from AdminThemeUikit. Dark mode now works automatically. Affected variables: `--pw-blocks-background`, `--pw-inputs-background`, `--pw-border-color`, `--pw-muted-color`, `--pw-text-color`, `--pw-main-background`, `--pw-error-inline-text-color`. All fallback values preserved for environments where variables are not defined.
+
+---
+
 ## 1.8.1 — 2026-04-07
 
 ### Fixed
