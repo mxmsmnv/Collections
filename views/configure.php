@@ -128,6 +128,19 @@ namespace ProcessWire;
                                    value="<?= $wire->sanitizer->entities($globalConfig['date_format'] ?? 'M j, Y') ?>"
                                    class="uk-input uk-form-width-medium">
                         </div>
+                        <div class="uk-margin-small">
+                            <label class="uk-form-label">Thumbnail size (px)</label>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <input type="number" name="thumb_width" min="32" max="128"
+                                       value="<?= (int)($globalConfig['thumb_width'] ?? 32) ?>"
+                                       class="uk-input uk-form-width-xsmall" style="width:64px;-moz-appearance:textfield;appearance:textfield;">
+                                <span class="uk-text-muted">×</span>
+                                <input type="number" name="thumb_height" min="32" max="128"
+                                       value="<?= (int)($globalConfig['thumb_height'] ?? 32) ?>"
+                                       class="uk-input uk-form-width-xsmall" style="width:64px;-moz-appearance:textfield;appearance:textfield;">
+                                <span class="uk-text-muted uk-text-small">width × height</span>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <h3 class="uk-heading-divider">Search</h3>

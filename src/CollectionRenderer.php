@@ -50,8 +50,13 @@ class CollectionRenderer
                 $html .= '<th class="col-status" style="width:24px;"></th>';
                 continue;
             }
-            $label  = $this->collection->columnLabels[$col] ?? ucfirst(str_replace('_', ' ', $col));
-            $isCurr = $params->sortBy === $col;
+            $label  = $this->collection->columnLabels[$col] ?? (
+                str_contains($col, '.')
+                    ? ucfirst(substr(strrchr($col, '.'), 1))
+                    : ucfirst(str_replace('_', ' ', $col))
+            );
+            $isCurr    = $params->sortBy === $col;
+            $isSortable = !str_contains($col, '.');
             $dir    = $isCurr && $params->sortDir === 'asc' ? 'desc' : 'asc';
             // Build sort URL preserving collection key and other params
             $colParam = isset($_GET['col']) ? '&col=' . htmlspecialchars($_GET['col']) : '';
@@ -61,8 +66,13 @@ class CollectionRenderer
                     ? ' <i class="fa fa-sort-asc"></i>'
                     : ' <i class="fa fa-sort-desc"></i>';
             }
-            $html .= "<th class=\"col-{$col}\" data-sort=\"{$col}\" data-dir=\"{$dir}\">"
-                . "<a href=\"?sort={$col}&dir={$dir}{$colParam}\" class=\"collections-sort-link\">{$label}{$icon}</a></th>";
+            $safeCol = $this->sanitizer->entities($col);
+            if ($isSortable) {
+                $html .= "<th class=\"col-{$safeCol}\" data-sort=\"{$col}\" data-dir=\"{$dir}\">"
+                    . "<a href=\"?sort={$col}&dir={$dir}{$colParam}\" class=\"collections-sort-link\">{$label}{$icon}</a></th>";
+            } else {
+                $html .= "<th class=\"col-{$safeCol}\">{$label}</th>";
+            }
         }
 
         $html .= '<th class="col-actions">Actions</th>';
@@ -103,8 +113,9 @@ class CollectionRenderer
         }
 
         foreach ($cols as $col) {
-            $value = $this->renderCellValue($page, $col);
-            $html .= "<td class=\"col-{$col}\">{$value}</td>";
+            $value    = $this->renderCellValue($page, $col);
+            $cssClass = str_replace('.', '-', $col);
+            $html .= "<td class=\"col-{$cssClass}\">{$value}</td>";
         }
 
         $editUrl     = $this->adminUrl . "page/edit/?id={$page->id}";
@@ -145,6 +156,11 @@ class CollectionRenderer
         if ($field === 'id')     return (string) $page->id;
         if ($field === 'name')   return $this->sanitizer->entities($page->name);
         if ($field === 'status') return $this->renderStatus($page->status);
+
+        // ── Dot-notation: fieldName.subField ──────────────────────────────────
+        if (str_contains($field, '.')) {
+            return $this->renderDotNotation($page, $field);
+        }
 
         $type  = $this->collection->columnTypes[$field] ?? 'auto';
 
@@ -196,7 +212,17 @@ class CollectionRenderer
 
         // ── Profields: Table ──────────────────────────────────────────────────
         if ($ftName === 'FieldtypeTable') {
-            return $this->renderProTable($value);
+            return $this->renderProTable($value, $fieldObj);
+        }
+
+        // ── Profields: Repeater Matrix ────────────────────────────────────────
+        if ($ftName === 'FieldtypeRepeaterMatrix') {
+            return $this->renderRepeaterMatrix($value, $fieldObj);
+        }
+
+        // ── Profields: Combo ──────────────────────────────────────────────────
+        if ($ftName === 'FieldtypeCombo') {
+            return $this->renderCombo($value, $fieldObj);
         }
 
         // ── Profields: Textareas ──────────────────────────────────────────────
@@ -260,6 +286,16 @@ class CollectionRenderer
             return '<span class="uk-text-muted">—</span>';
         }
 
+        // Guard: native PHP array — join values instead of casting to "Array"
+        if (is_array($value)) {
+            return $value ? $this->sanitizer->entities(implode(', ', $value)) : '<span class="uk-text-muted">—</span>';
+        }
+
+        // Guard: WireArray not caught above (e.g. SelectableOptionArray with items)
+        if ($value instanceof WireArray) {
+            return $this->renderOptions($value);
+        }
+
         return $this->sanitizer->entities((string)$value);
     }
 
@@ -318,10 +354,12 @@ class CollectionRenderer
     {
         if (!$image) return '<span class="uk-text-muted">—</span>';
         try {
-            $thumb = $image->size(32, 32);
-            return "<img src=\"{$thumb->url}\" width=\"32\" height=\"32\" class=\"collections-thumb\" alt=\"\">";
+            $w     = (int) ($this->globalConfig['thumb_width']  ?? 32);
+            $h     = (int) ($this->globalConfig['thumb_height'] ?? 32);
+            $thumb = $image->size($w, $h);
+            return "<img src=\"{$thumb->url}\" width=\"{$w}\" height=\"{$h}\" class=\"collections-thumb\" alt=\"\">";
         } catch (\Throwable) {
-            return '<i class="fa fa-image uk-text-muted"></i>';
+            return '<span class="uk-text-muted">—</span>';
         }
     }
 
@@ -355,10 +393,437 @@ class CollectionRenderer
         return implode(', ', array_slice($items, 0, 2)) . (count($items) > 2 ? ' +' . (count($items)-2) : '');
     }
 
-    private function renderProTable($value): string
+    private function renderDotNotation($page, string $dotField): string
+    {
+        // Split into at most 3 segments: parentField, segment2, segment3
+        $segments   = explode('.', $dotField, 3);
+        $parentName = $segments[0];
+        $seg2       = $segments[1] ?? '';
+        $seg3       = $segments[2] ?? '';
+
+        $fieldObj = $this->wire->fields->get($parentName);
+        if (!$fieldObj) return '<span class="uk-text-muted">—</span>';
+
+        $ftName = $fieldObj->type->className();
+
+        // ── Combo: address.city ───────────────────────────────────────────────
+        if ($ftName === 'FieldtypeCombo') {
+            try {
+                $comboValue = $page->getUnformatted($parentName);
+                if (!$comboValue || !method_exists($comboValue, 'get')) {
+                    return '<span class="uk-text-muted">—</span>';
+                }
+                // Support address.city and address.ref_field.title (3 segments)
+                $val = $comboValue->get($seg2);
+                if ($seg3 !== '' && $val instanceof Page) {
+                    $val = $val->get($seg3);
+                }
+                // Resolve value=Label options for scalar subfields
+                if ((is_string($val) || is_numeric($val)) && $seg3 === '') {
+                    $subfields = method_exists($comboValue, 'getSubfields') ? $comboValue->getSubfields() : [];
+                    if (isset($subfields[$seg2])) {
+                        $val = $this->resolveComboOptionLabel($subfields[$seg2], (string) $val);
+                    }
+                    return $val !== '' ? $this->sanitizer->entities($val) : '<span class="uk-text-muted">—</span>';
+                }
+                // Resolve array (Checkboxes) — each item through options lookup
+                if (is_array($val) && $seg3 === '') {
+                    if (!$val) return '<span class="uk-text-muted">—</span>';
+                    $subfields = method_exists($comboValue, 'getSubfields') ? $comboValue->getSubfields() : [];
+                    $labels = [];
+                    foreach ($val as $item) {
+                        $resolved = isset($subfields[$seg2])
+                            ? $this->resolveComboOptionLabel($subfields[$seg2], (string) $item)
+                            : (string) $item;
+                        $labels[] = $this->sanitizer->entities($resolved);
+                    }
+                    return implode(', ', $labels);
+                }
+                return $this->renderScalarOrObject($val);
+            } catch (\Throwable) {
+                return '<span class="uk-text-muted">—</span>';
+            }
+        }
+
+        // ── Repeater Matrix: blocks.subfield  or  blocks.typeName.subfield ───
+        if ($ftName === 'FieldtypeRepeaterMatrix') {
+            try {
+                $items = $page->getUnformatted($parentName);
+                if (!$items || !count($items)) return '<span class="uk-text-muted">—</span>';
+
+                if ($seg3 !== '') {
+                    // 3-segment: blocks.hero.title → filter by type name, get subfield
+                    $typeName = $seg2;
+                    $subName  = $seg3;
+                    foreach ($items as $item) {
+                        if (method_exists($item, 'matrix') && $item->matrix('name') === $typeName) {
+                            return $this->renderScalarOrObject($item->getUnformatted($subName));
+                        }
+                    }
+                    return '<span class="uk-text-muted">—</span>';
+                } else {
+                    // 2-segment: blocks.title → first item's subfield
+                    $first = $items->first();
+                    return $this->renderScalarOrObject($first ? $first->getUnformatted($seg2) : null);
+                }
+            } catch (\Throwable) {
+                return '<span class="uk-text-muted">—</span>';
+            }
+        }
+
+        // ── Table: prices.amount → first row col  /  prices.*.amount → all rows col
+        if ($ftName === 'FieldtypeTable') {
+            try {
+                $rows = $page->getUnformatted($parentName);
+                if (!$rows || !count($rows)) return '<span class="uk-text-muted">—</span>';
+
+                if ($seg2 === '*' && $seg3 !== '') {
+                    // prices.*.amount — collect named column from every row
+                    return $this->renderTableColumn($rows, $seg3);
+                } else {
+                    // prices.amount — first row, named column
+                    $first = $rows->first();
+                    return $this->renderScalarOrObject($first ? $first->get($seg2) : null);
+                }
+            } catch (\Throwable) {
+                return '<span class="uk-text-muted">—</span>';
+            }
+        }
+
+        // ── Generic PW fallback (e.g. repeater.title via native PW chaining) ──
+        try {
+            $val = $page->get($dotField);
+            return $this->renderScalarOrObject($val);
+        } catch (\Throwable) {
+            return '<span class="uk-text-muted">—</span>';
+        }
+    }
+
+    private function renderScalarOrObject($val): string
+    {
+        if ($val === null || $val === '' || $val === false) {
+            return '<span class="uk-text-muted">—</span>';
+        }
+        if ($val instanceof Pageimage)  return $this->renderThumbnail($val);
+        if ($val instanceof Pageimages) return count($val) ? $this->renderThumbnail($val->first()) : '<span class="uk-text-muted">—</span>';
+        if ($val instanceof Page)       return $this->renderPageRef($val);
+        if ($val instanceof PageArray)  return $this->renderPageArray($val);
+        if ($val instanceof WireArray) {
+            if (!count($val)) return '<span class="uk-text-muted">—</span>';
+            // SelectableOptionArray, RepeaterPageArray, etc. — join titles/strings
+            $parts = [];
+            foreach ($val as $item) {
+                $parts[] = method_exists($item, 'title') && $item->title
+                    ? $this->sanitizer->entities($item->title)
+                    : $this->sanitizer->entities((string) $item);
+            }
+            return implode(', ', $parts);
+        }
+        // Native PHP array (e.g. selectMultiple stored as array)
+        if (is_array($val)) {
+            return $val ? $this->sanitizer->entities(implode(', ', $val)) : '<span class="uk-text-muted">—</span>';
+        }
+        $str = strip_tags((string) $val);
+        if ($str === '') return '<span class="uk-text-muted">—</span>';
+        return strlen($str) > 80
+            ? $this->renderTextarea($str)
+            : $this->sanitizer->entities($str);
+    }
+
+    private function renderProTable($value, $fieldObj = null): string
     {
         if (!$value || !count($value)) return '<span class="uk-text-muted">—</span>';
-        return '<span class="uk-badge">' . count($value) . ' rows</span>';
+
+        try {
+            // Use TableRows::getColumns() — returns name, label, type, valid, width per col
+            $columns = method_exists($value, 'getColumns') ? $value->getColumns() : [];
+
+            // Fallback: build column list from fieldObj numCols/colNname config
+            if (!$columns && $fieldObj) {
+                $numCols = (int) $fieldObj->get('numCols');
+                for ($i = 1; $i <= $numCols; $i++) {
+                    $name = (string) $fieldObj->get("col{$i}name");
+                    if ($name === '') continue;
+                    $label = (string) $fieldObj->get("col{$i}label") ?: ucfirst($name);
+                    $columns[] = ['name' => $name, 'label' => $label, 'valid' => 'text'];
+                }
+            }
+
+            if (!$columns) {
+                $count = count($value);
+                return '<span class="uk-badge">' . $count . ' ' . ($count === 1 ? 'row' : 'rows') . '</span>';
+            }
+
+            // Render compact inline table
+            $html  = '<table class="collections-protable uk-table uk-table-small uk-table-divider uk-margin-remove">';
+            $html .= '<thead><tr>';
+            foreach ($columns as $col) {
+                $lbl  = $this->sanitizer->entities($col['label'] ?? $col['name']);
+                $html .= "<th>{$lbl}</th>";
+            }
+            $html .= '</tr></thead><tbody>';
+
+            foreach ($value as $row) {
+                $html .= '<tr>';
+                foreach ($columns as $col) {
+                    $val   = $row->get($col['name']);
+                    $valid = $col['valid'] ?? 'text';
+                    $cell  = $this->renderTableCell($val, $valid);
+                    $html .= "<td>{$cell}</td>";
+                }
+                $html .= '</tr>';
+            }
+
+            $html .= '</tbody></table>';
+            return $html;
+
+        } catch (\Throwable) {
+            $count = count($value);
+            return '<span class="uk-badge">' . $count . ' ' . ($count === 1 ? 'row' : 'rows') . '</span>';
+        }
+    }
+
+    private function renderTableCell(mixed $val, string $valid): string
+    {
+        if ($val === null || $val === '') return '<span class="uk-text-muted">—</span>';
+
+        // Image column — value is already Pageimage after wakeupFile()
+        if ($valid === 'image' || $val instanceof Pageimage) {
+            return $val instanceof Pageimage ? $this->renderThumbnail($val) : '<span class="uk-text-muted">—</span>';
+        }
+
+        // File column
+        if ($valid === 'file' || $val instanceof Pagefile) {
+            if ($val instanceof Pagefile) {
+                return '<span class="uk-text-small">' . $this->sanitizer->entities($val->basename) . '</span>';
+            }
+            return '<span class="uk-text-muted">—</span>';
+        }
+
+        // Page reference (single)
+        if ($valid === 'Page' || ($val instanceof Page && !($val instanceof NullPage))) {
+            return $val instanceof Page && $val->id
+                ? $this->sanitizer->entities($val->title ?: $val->name)
+                : '<span class="uk-text-muted">—</span>';
+        }
+
+        // Page reference (multi)
+        if ($valid === 'PageArray' || $val instanceof PageArray) {
+            if (!($val instanceof PageArray) || !count($val)) return '<span class="uk-text-muted">—</span>';
+            $titles = [];
+            foreach ($val as $p) $titles[] = $this->sanitizer->entities($p->title ?: $p->name);
+            return implode(', ', $titles);
+        }
+
+        // selectMultiple — stored as array
+        if ($valid === 'array' || is_array($val)) {
+            if (!is_array($val) || !$val) return '<span class="uk-text-muted">—</span>';
+            return $this->sanitizer->entities(implode(', ', $val));
+        }
+
+        // Scalar fallback
+        $str = strip_tags((string) $val);
+        if ($str === '') return '<span class="uk-text-muted">—</span>';
+        return $this->sanitizer->entities(mb_substr($str, 0, 60));
+    }
+
+    private function renderTableColumn($rows, string $colName): string
+    {
+        $vals = [];
+        foreach ($rows as $row) {
+            $val = $row->get($colName);
+            if ($val === null || $val === '') continue;
+            $str = mb_substr(strip_tags((string) $val), 0, 40);
+            if ($str !== '') $vals[] = $this->sanitizer->entities($str);
+        }
+        return $vals
+            ? implode(', ', $vals)
+            : '<span class="uk-text-muted">—</span>';
+    }
+
+    private function renderRepeaterMatrix($value, $fieldObj = null): string
+    {
+        if (!$value || !count($value)) return '<span class="uk-text-muted">—</span>';
+
+        $count = count($value);
+        $label = $count === 1 ? 'item' : 'items';
+        $badge = '<span class="uk-badge">' . $count . ' ' . $label . '</span>';
+
+        // Build per-type counts using matrix('name') on each RepeaterMatrixPage
+        try {
+            $typeCounts = [];
+            foreach ($value as $item) {
+                // matrix() is a method on RepeaterMatrixPage; use method_exists for safety
+                if (method_exists($item, 'matrix')) {
+                    $typeName = (string) $item->matrix('name');
+                } else {
+                    $typeName = '';
+                }
+
+                // Prefer the human-readable label from field config
+                $displayLabel = $typeName;
+                if ($fieldObj && $typeName !== '') {
+                    $n = method_exists($item, 'matrix') ? (int) $item->matrix('n') : 0;
+                    if ($n > 0) {
+                        $cfgLabel = (string) $fieldObj->get("matrix{$n}_label");
+                        if ($cfgLabel !== '') $displayLabel = $cfgLabel;
+                    }
+                }
+
+                if ($displayLabel === '') $displayLabel = '(unknown)';
+                $typeCounts[$displayLabel] = ($typeCounts[$displayLabel] ?? 0) + 1;
+            }
+
+            if ($typeCounts) {
+                $parts = [];
+                foreach ($typeCounts as $typeName => $cnt) {
+                    $esc     = $this->sanitizer->entities($typeName);
+                    $parts[] = $cnt > 1 ? "{$esc} ×{$cnt}" : $esc;
+                }
+                $badge .= ' <span class="uk-text-muted uk-text-small">'
+                    . implode(', ', $parts)
+                    . '</span>';
+            }
+        } catch (\Throwable) {}
+
+        return $badge;
+    }
+
+    private function renderCombo($value, $fieldObj = null): string
+    {
+        if (!$value) return '<span class="uk-text-muted">—</span>';
+
+        try {
+            if (!method_exists($value, 'getSubfields')) {
+                return '<span class="uk-text-muted">—</span>';
+            }
+
+            $subfields = $value->getSubfields();
+            if (!$subfields) return '<span class="uk-text-muted">—</span>';
+
+            $parts = [];
+            $shown = 0;
+
+            foreach ($subfields as $name => $subfield) {
+                if ($shown >= 2) break;
+
+                $val = $value->get($name);
+                if ($val === null || $val === '' || $val === false) continue;
+
+                $subfieldLabel = method_exists($subfield, 'getLabel') ? $subfield->getLabel() : $name;
+                $escLabel      = $this->sanitizer->entities($subfieldLabel ?: $name);
+
+                // Pageimage → thumbnail (no label prefix)
+                if ($val instanceof Pageimage) {
+                    $parts[] = $this->renderThumbnail($val);
+                    $shown++;
+                    continue;
+                }
+
+                // Pageimages → thumbnail of first
+                if ($val instanceof Pageimages && count($val)) {
+                    $parts[] = $this->renderThumbnail($val->first());
+                    $shown++;
+                    continue;
+                }
+
+                // Page reference
+                if ($val instanceof Page && $val->id) {
+                    $title   = $this->sanitizer->entities($val->title ?: $val->name);
+                    $parts[] = "<span class='uk-text-muted uk-text-small'>{$escLabel}:</span> {$title}";
+                    $shown++;
+                    continue;
+                }
+
+                // PageArray
+                if ($val instanceof PageArray && count($val)) {
+                    $titles  = [];
+                    foreach ($val as $p) $titles[] = $this->sanitizer->entities($p->title ?: $p->name);
+                    $parts[] = "<span class='uk-text-muted uk-text-small'>{$escLabel}:</span> "
+                        . implode(', ', array_slice($titles, 0, 2))
+                        . (count($titles) > 2 ? '…' : '');
+                    $shown++;
+                    continue;
+                }
+
+                // Native PHP array — Checkboxes / multi-select with value=Label options
+                if (is_array($val)) {
+                    if (!$val) continue;
+                    $labels = [];
+                    foreach ($val as $item) {
+                        $labels[] = $this->sanitizer->entities(
+                            $this->resolveComboOptionLabel($subfield, (string) $item)
+                        );
+                    }
+                    $parts[] = "<span class='uk-text-muted uk-text-small'>{$escLabel}:</span> "
+                        . implode(', ', $labels);
+                    $shown++;
+                    continue;
+                }
+
+                // Scalar / string — resolve value=Label options if subfield has them
+                if (is_string($val) || is_numeric($val)) {
+                    $text = mb_substr(strip_tags((string) $val), 0, 40);
+                    if ($text === '') continue;
+
+                    // Try to resolve raw value to its label via subfield options
+                    $resolved = $this->resolveComboOptionLabel($subfield, $text);
+
+                    $esc     = $this->sanitizer->entities($resolved);
+                    $parts[] = "<span class='uk-text-muted uk-text-small'>{$escLabel}:</span> {$esc}";
+                    $shown++;
+                    continue;
+                }
+            }
+
+            return $parts
+                ? implode(' · ', $parts)
+                : '<span class="uk-text-muted">—</span>';
+
+        } catch (\Throwable) {
+            return '<span class="uk-text-muted">—</span>';
+        }
+    }
+
+    /**
+     * Parse a Combo subfield's options string and resolve a raw value to its label.
+     * Options format (one per line): "value=Label" or plain "Label" (value === label).
+     * Returns the label if found, otherwise returns the original raw value.
+     */
+    private function resolveComboOptionLabel($subfield, string $rawValue): string
+    {
+        try {
+            $options = $subfield->get('options');
+            if (!$options) return $rawValue;
+
+            // options may be stored as a string "value=Label\nvalue2=Label2"
+            // or already as an associative array ['value' => 'Label']
+            if (is_string($options)) {
+                foreach (explode("\n", $options) as $line) {
+                    $line = trim($line);
+                    if ($line === '') continue;
+                    if (str_contains($line, '=')) {
+                        [$optVal, $optLabel] = explode('=', $line, 2);
+                        if (trim($optVal) === $rawValue) return trim($optLabel);
+                    } else {
+                        // plain "Label" format — value === label
+                        if ($line === $rawValue) return $line;
+                    }
+                }
+            } elseif (is_array($options)) {
+                // Associative ['value' => 'Label'] or indexed ['Label']
+                foreach ($options as $optVal => $optLabel) {
+                    if (is_int($optVal)) {
+                        // indexed — value === label
+                        if ($optLabel === $rawValue) return $optLabel;
+                    } else {
+                        if ((string) $optVal === $rawValue) return (string) $optLabel;
+                    }
+                }
+            }
+        } catch (\Throwable) {}
+
+        return $rawValue;
     }
 
     private function renderTextareas($value, $fieldObj): string

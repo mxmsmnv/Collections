@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.9.0 — 2026-04-22
+
+### Added
+
+- **ProFields: Repeater Matrix support** — `FieldtypeRepeaterMatrix` fields now render in the collection table. Shows item count with per-type breakdown (e.g. `3 items · hero, text ×2`), using human-readable type labels from field configuration.
+- **ProFields: Combo support** — `FieldtypeCombo` fields now render in the collection table. Shows the first 1–2 non-empty subfields with their labels. Supports text, numeric, `Page` reference, `PageArray`, and `Pageimage` subfield types.
+- **Dot-notation column syntax** — any column can now reference a subfield using `field.subfield` syntax (e.g. `address.city`, `address.country`). Works with Combo, Repeater Matrix, and Table fields.
+  - `address.city` — Combo subfield value
+  - `address.ref_field.title` — Combo subfield Page reference chained to a property
+  - `blocks.title` — first Repeater Matrix item's subfield
+  - `blocks.hero.title` — first item of type `hero`, subfield `title`
+  - `prices.amount` — first Table row, named column
+  - `prices.*.amount` — all Table rows, named column, joined with `, `
+- **ProFields: Table full render** — `FieldtypeTable` columns now render as a compact inline mini-table with all rows and column headers, using `TableRows::getColumns()` for automatic column detection.
+- **Table cell type handling** — Table cell values are now rendered by column type: `image` → thumbnail, `file` → filename, `Page` → title, `PageArray` → comma-separated titles, `array` (selectMultiple) → joined string, scalar → text.
+- **`renderTableCell()` method** — new internal method handling type-aware rendering of individual Table cell values.
+- **`renderDotNotation()` method** — new internal method resolving dot-notation column paths against Combo, Repeater Matrix, Table, and generic PW field chains.
+- **`renderScalarOrObject()` method** — new internal helper used by dot-notation rendering; dispatches to the correct renderer based on value type (`Pageimage`, `Page`, `PageArray`, scalar).
+
+### Fixed
+
+- **`Array to string conversion` warning** — `buildSelector()` in `Collection.php` was passing `FieldtypeTable` (and other non-searchable ProField types) to PW's `%=` text selector, which internally returned an array when building SQL for multi-table fields. Non-searchable types (`FieldtypeTable`, `FieldtypeRepeaterMatrix`, `FieldtypeCombo`, `FieldtypeRepeater`, `FieldtypeFile`, `FieldtypeImage`) are now explicitly excluded from the search selector.
+- **Dot-notation columns included in search selector** — `address.city`-style columns were passed to `wire('fields')->get()` and `%=` selectors, causing unknown-field warnings. Dot-notation columns are now skipped in `buildSelector()`.
+- **Null field in `$allSearchFields`** — `buildSelector()` no longer adds a `%=` part for fields that `wire('fields')->get()` cannot resolve.
+- **Dark mode bulk bar** — `body:not(.pw-dark)` selector was inverted, applying dark background (`#1f2937`) to the light theme instead of dark. Fixed to `body.pw-dark`.
+- **Protable hover in dark mode** — `.collections-protable tbody tr:hover td` used hardcoded `#f9f9f9` fallback which rendered as a white flash in dark mode. Replaced with `rgba(0,0,0,0.03)`.
+- **Dot-notation column CSS class** — `<td class="col-address.city">` produced an invalid CSS class. All dots in column names are now replaced with `-` in generated class attributes.
+- **Dot-notation column sort link** — dot-notation columns are no longer rendered with a sort `<a>` link in the table header, since PW selectors cannot sort by subfield paths. Rendered as plain `<th>` text instead.
+
+### Changed
+
+- **`renderProTable()` signature** — now accepts an optional `$fieldObj` parameter (previously unused stub). Column definitions are read via `TableRows::getColumns()` first, with `$fieldObj->get("col{$n}name")` as fallback.
+- **`renderProTable()` output** — replaced the previous `N rows` badge + 2-column preview with a full inline mini-table showing all rows and column headers.
+- **Column header label for dot-notation** — headers for `field.subfield` columns now auto-generate from the last segment: `address.city` → `City`. Explicit `columnLabels` overrides still take priority.
+
+---
+
 ## 1.8.2 — 2026-04-09
 
 ### Changed

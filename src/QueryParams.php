@@ -33,8 +33,8 @@ final class QueryParams
             page:    max(1, (int) $input->get('page', 'int')),
             perPage: min(500, max(1, (int) ($input->get('per_page', 'int') ?: 25))),
             search:  $input->get('q', 'text') ?? '',
-            sortBy:  $input->get('sort', 'name') ?? '',
-            sortDir: in_array($dir, ['asc', 'desc'], true) ? $dir : '',
+            sortBy:  $input->get('sort', 'fieldName') ?? '',
+            sortDir: in_array($dir, ['asc', 'desc'], true) ? $dir : 'asc',
             filters: $filters,
         );
     }

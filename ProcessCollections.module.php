@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => 'ProcessCollections',
-            'version'     => 182,
+            'version'     => 190,
             'summary'     => 'Admin interface for Collections module',
             'author'      => 'Maxim Semenov',
             'requires'    => ['Collections'],
@@ -510,6 +510,8 @@ class ProcessCollections extends Process
 
         $current['default_per_page']  = max(5, min(500, (int) $post->text('default_per_page')));
         $current['date_format']       = $this->wire('sanitizer')->text($post->text('date_format') ?: 'M j, Y');
+        $current['thumb_width']       = max(32, min(128, (int) $post->text('thumb_width') ?: 32));
+        $current['thumb_height']      = max(32, min(128, (int) $post->text('thumb_height') ?: 32));
         $current['min_search_length'] = max(1, min(10, (int) $post->text('min_search_length')));
         $current['api_base']          = '/' . trim($this->wire('sanitizer')->text($post->text('api_base')), '/') . '/';
         $current['cache_ttl']         = max(60, min(86400, (int) $post->text('cache_ttl')));

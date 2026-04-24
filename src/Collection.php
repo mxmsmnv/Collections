@@ -90,10 +90,16 @@ final class Collection
             // Sanitize search value
             $safeSearch = wire('sanitizer')->selectorValue($search);
 
+            // Field types that cannot be searched with %= selector (causes Array-to-string in PW internals)
+            $nonSearchable = ['FieldtypeTable', 'FieldtypeRepeaterMatrix', 'FieldtypeCombo',
+                              'FieldtypeFile', 'FieldtypeImage', 'FieldtypeRepeater'];
+
             // Collect all searchable fields, optionally including Page ref columns
             $allSearchFields = $fields;
             if ($this->searchRelated) {
                 foreach ($this->columns as $col) {
+                    // Skip dot-notation sub-fields (address.city etc.)
+                    if (str_contains($col, '.')) continue;
                     $field = wire('fields')->get($col);
                     if ($field && $field->type->className() === 'FieldtypePage' && !in_array($col, $allSearchFields)) {
                         $allSearchFields[] = $col;
@@ -106,12 +112,17 @@ final class Collection
             $pageRefFields = []; // fields of type FieldtypePage that need ref-title search
 
             foreach ($allSearchFields as $f) {
+                // Skip dot-notation sub-fields
+                if (str_contains($f, '.')) continue;
                 $field = wire('fields')->get($f);
-                if ($field && $field->type->className() === 'FieldtypePage') {
+                if (!$field) continue; // unknown field — skip to avoid PW selector errors
+                $ftName = $field->type->className();
+                if ($ftName === 'FieldtypePage') {
                     $pageRefFields[] = $f;
-                } else {
+                } elseif (!in_array($ftName, $nonSearchable, true)) {
                     $textOrParts[] = "{$f}%={$safeSearch}";
                 }
+                // Non-searchable types (Table, Matrix, Combo…) are silently skipped
             }
 
             // For Page ref fields: find matching referenced pages ONCE (not per-field)

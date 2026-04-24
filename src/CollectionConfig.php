@@ -366,6 +366,8 @@ class CollectionConfig
             'confirm_batch_delete'  => true,
             'default_per_page'      => 25,
             'date_format'           => 'M j, Y',
+            'thumb_width'           => 32,
+            'thumb_height'          => 32,
             'live_search'           => true,
             'min_search_length'     => 2,
             'export_csv'            => true,

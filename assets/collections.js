@@ -65,14 +65,14 @@
 
     // ── Filter dropdowns ──────────────────────────────────────────────────────
 
-    document.addEventListener('change', function(e) {
-        const sel = e.target.closest('.collections-filter');
-        if (!sel) return;
-        const params = getCurrentParams();
-        const field  = sel.dataset.field;
-        params[`filter[${field}]`] = sel.value;
-        params['page'] = 1;
-        fetchTable(params);
+    document.querySelectorAll('.collections-filter').forEach(sel => {
+        sel.addEventListener('change', function() {
+            const params = getCurrentParams();
+            const field  = this.dataset.field;
+            params[`filter[${field}]`] = this.value;
+            params['page'] = 1;
+            fetchTable(params);
+        });
     });
 
     // ── Sort links (async) ────────────────────────────────────────────────────
@@ -145,12 +145,6 @@
             }
             resultEl.style.opacity = '1';
             history.replaceState(null, '', url);
-            // Update export links to reflect current filters/search
-            const exportBase = url.replace(/&export=(csv|json)/, '');
-            document.querySelectorAll('.collections-export').forEach(function(a) {
-                const fmt = a.dataset.format;
-                a.href = exportBase + '&export=' + fmt;
-            });
             // Reset checkboxes and bulk bar after table reload
             const checkAll = resultEl.querySelector('.collections-check-all');
             if (checkAll) checkAll.checked = false;
@@ -345,9 +339,6 @@
         const expCheck = document.getElementById('field-exportEnabled');
         if (expCheck) expCheck.checked = data.exportEnabled !== false;
 
-        const relCheck = document.getElementById('field-searchRelated');
-        if (relCheck) relCheck.checked = data.searchRelated !== false;
-
         const title = document.getElementById('modal-collection-title');
         if (title) title.textContent = `Edit: ${data.label || data.key}`;
 
@@ -374,9 +365,6 @@
 
         const expCheck = document.getElementById('field-exportEnabled');
         if (expCheck) expCheck.checked = true;
-
-        const relCheck = document.getElementById('field-searchRelated');
-        if (relCheck) relCheck.checked = true;
 
         const title = document.getElementById('modal-collection-title');
         if (title) title.textContent = 'Add Collection';

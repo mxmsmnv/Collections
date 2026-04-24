@@ -23,24 +23,16 @@ $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
     </div>
     <div class="header-actions">
         <?php if ($canExport && $collection->exportEnabled): ?>
-        <?php
-        // Build filter query string for export URLs
-        $filterParams = '';
-        foreach ($params->filters as $field => $val) {
-            if ($val !== '') $filterParams .= '&filter[' . urlencode($field) . ']=' . urlencode($val);
-        }
-        $exportBase = '?col=' . urlencode($collection->key) . '&q=' . urlencode($params->search) . $filterParams;
-        ?>
         <div class="uk-inline">
             <button class="ui-button ui-state-default ui-priority-secondary" type="button">
                 <span class="ui-button-text"><i class="fa fa-download"></i> Export</span>
             </button>
             <div uk-dropdown="mode: click; pos: bottom-right">
                 <ul class="uk-nav uk-dropdown-nav">
-                    <li><a href="<?= $exportBase ?>&export=csv" class="collections-export" data-format="csv">
+                    <li><a href="?col=<?= urlencode($collection->key) ?>&export=csv&q=<?= urlencode($params->search) ?>" class="collections-export" data-format="csv">
                         <i class="fa fa-file-text-o"></i> Export CSV
                     </a></li>
-                    <li><a href="<?= $exportBase ?>&export=json" class="collections-export" data-format="json">
+                    <li><a href="?col=<?= urlencode($collection->key) ?>&export=json&q=<?= urlencode($params->search) ?>" class="collections-export" data-format="json">
                         <i class="fa fa-file-code-o"></i> Export JSON
                     </a></li>
                 </ul>
