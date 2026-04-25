@@ -88,16 +88,23 @@ iOS/Android apps consume the Collections API. API keys with expiration dates and
 Text, Textarea, Integer, Float, Checkbox, URL, Email, Color (hex), Date/Datetime, Image, File, FieldtypeFileB2, FieldtypePage (single and multi), FieldtypeOptions, MapMarker, Profields Table, Profields Textareas, Profields Multiplier, Profields Repeater Matrix, Profields Combo
 
 **Dot-notation column syntax**
-Subfields of composite ProFields can be addressed directly in the Columns setting using `field.subfield` notation:
+Subfields of composite ProFields can be addressed directly in the Columns setting using `field.subfield` notation. The renderer auto-detects field types at each level — no type prefix needed.
 
 | Syntax | Field type | Result |
 |---|---|---|
 | `address.city` | Combo | Single subfield value |
-| `address.country` | Combo | Single subfield value |
-| `blocks.title` | Repeater Matrix | Subfield from first item |
+| `address.type` | Combo (Radio) | Resolved label (e.g. `brewery` → `Brewery`) |
+| `address.certification` | Combo (Checkboxes) | All selected labels joined with `, ` |
+| `blocks.title` | Repeater Matrix | Subfield from first item (any type) |
 | `blocks.hero.title` | Repeater Matrix | Subfield from first item of type `hero` |
+| `blocks.hero.image` | Repeater Matrix | Thumbnail from typed item |
+| `media.property_photos.photos` | Matrix → Repeater | First Repeater item's image field |
+| `media.property_photos.photos_category` | Matrix → Repeater | First Repeater item's Options field |
+| `media.photo.property_photos.photos` | Matrix[type] → Repeater | Typed Matrix item → Repeater → subfield |
 | `prices.amount` | Table | Column value from first row |
 | `prices.*.amount` | Table | All rows' `amount` values, joined with `, ` |
+| `options.*.wine.color` | Matrix (wildcard) | `color` from all items of type `wine`, joined |
+| `options.*.title` | Matrix (wildcard) | `title` from all items regardless of type |
 
 ---
 
@@ -146,6 +153,7 @@ Go to **Admin → Collections → Configure**, click **New Collection** and fill
 | Min search length | 2 | Minimum characters before search fires |
 | Default per page | 25 | Rows per page when collection doesn't override |
 | Date format | `M j, Y` | PHP `date()` format string for date fields |
+| Thumbnail size | `32 × 32` | Width × height of image thumbnails in the table (32–128 px) |
 | Enable REST API | off | Must be enabled to use any API endpoint |
 | API base path | `/api/` | URL prefix for all endpoints |
 | Enable API cache | off | Caches GET responses using WireCache |

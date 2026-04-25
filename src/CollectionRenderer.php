@@ -169,8 +169,12 @@ class CollectionRenderer
         $ftName   = $fieldObj ? $fieldObj->type->className() : '';
 
         // For image/file fields use formatted value (gives Pageimages with URL access)
-        $isImageField = in_array($ftName, ['FieldtypeImage', 'FieldtypeFile']);
-        $value = $isImageField ? $page->get($field) : $page->getUnformatted($field);
+        // For Repeater/Matrix use formatted value too — getUnformatted returns raw page IDs
+        $needsFormatted = in_array($ftName, [
+            'FieldtypeImage', 'FieldtypeFile',
+            'FieldtypeRepeaterMatrix', 'FieldtypeRepeater',
+        ]);
+        $value = $needsFormatted ? $page->get($field) : $page->getUnformatted($field);
 
         // Explicit type overrides from column config
         if ($type === 'date')   return $this->formatDate($value);
@@ -201,6 +205,11 @@ class CollectionRenderer
             return '<span class="uk-text-muted">—</span>';
         }
 
+        // ── Profields: Repeater Matrix — must be before generic PageArray check ──
+        if ($ftName === 'FieldtypeRepeaterMatrix') {
+            return $this->renderRepeaterMatrix($value, $fieldObj);
+        }
+
         // ── Page references ───────────────────────────────────────────────────
         if ($value instanceof Page)      return $this->renderPageRef($value);
         if ($value instanceof PageArray) return $this->renderPageArray($value);
@@ -213,11 +222,6 @@ class CollectionRenderer
         // ── Profields: Table ──────────────────────────────────────────────────
         if ($ftName === 'FieldtypeTable') {
             return $this->renderProTable($value, $fieldObj);
-        }
-
-        // ── Profields: Repeater Matrix ────────────────────────────────────────
-        if ($ftName === 'FieldtypeRepeaterMatrix') {
-            return $this->renderRepeaterMatrix($value, $fieldObj);
         }
 
         // ── Profields: Combo ──────────────────────────────────────────────────
@@ -395,49 +399,50 @@ class CollectionRenderer
 
     private function renderDotNotation($page, string $dotField): string
     {
-        // Split into at most 3 segments: parentField, segment2, segment3
-        $segments   = explode('.', $dotField, 3);
+        $segments   = explode('.', $dotField, 4);
         $parentName = $segments[0];
         $seg2       = $segments[1] ?? '';
         $seg3       = $segments[2] ?? '';
+        $seg4       = $segments[3] ?? '';
 
         $fieldObj = $this->wire->fields->get($parentName);
         if (!$fieldObj) return '<span class="uk-text-muted">—</span>';
 
         $ftName = $fieldObj->type->className();
 
-        // ── Combo: address.city ───────────────────────────────────────────────
+        // ── Combo ─────────────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeCombo') {
             try {
                 $comboValue = $page->getUnformatted($parentName);
                 if (!$comboValue || !method_exists($comboValue, 'get')) {
                     return '<span class="uk-text-muted">—</span>';
                 }
-                // Support address.city and address.ref_field.title (3 segments)
-                $val = $comboValue->get($seg2);
-                if ($seg3 !== '' && $val instanceof Page) {
-                    $val = $val->get($seg3);
+                $val       = $comboValue->get($seg2);
+                $subfields = method_exists($comboValue, 'getSubfields') ? $comboValue->getSubfields() : [];
+
+                // Resolve array (Checkboxes)
+                if (is_array($val) && $seg3 === '') {
+                    if (!$val) return '<span class="uk-text-muted">—</span>';
+                    $labels = [];
+                    foreach ($val as $item) {
+                        $labels[] = $this->sanitizer->entities(
+                            isset($subfields[$seg2])
+                                ? $this->resolveComboOptionLabel($subfields[$seg2], (string) $item)
+                                : (string) $item
+                        );
+                    }
+                    return implode(', ', $labels);
                 }
-                // Resolve value=Label options for scalar subfields
+                // Resolve scalar (Radio/Select)
                 if ((is_string($val) || is_numeric($val)) && $seg3 === '') {
-                    $subfields = method_exists($comboValue, 'getSubfields') ? $comboValue->getSubfields() : [];
                     if (isset($subfields[$seg2])) {
                         $val = $this->resolveComboOptionLabel($subfields[$seg2], (string) $val);
                     }
-                    return $val !== '' ? $this->sanitizer->entities($val) : '<span class="uk-text-muted">—</span>';
+                    return $val !== '' ? $this->sanitizer->entities((string) $val) : '<span class="uk-text-muted">—</span>';
                 }
-                // Resolve array (Checkboxes) — each item through options lookup
-                if (is_array($val) && $seg3 === '') {
-                    if (!$val) return '<span class="uk-text-muted">—</span>';
-                    $subfields = method_exists($comboValue, 'getSubfields') ? $comboValue->getSubfields() : [];
-                    $labels = [];
-                    foreach ($val as $item) {
-                        $resolved = isset($subfields[$seg2])
-                            ? $this->resolveComboOptionLabel($subfields[$seg2], (string) $item)
-                            : (string) $item;
-                        $labels[] = $this->sanitizer->entities($resolved);
-                    }
-                    return implode(', ', $labels);
+                // Page ref inside Combo → continue one level
+                if ($seg3 !== '' && $val instanceof \ProcessWire\Page && $val->id) {
+                    $val = $val->get($seg3);
                 }
                 return $this->renderScalarOrObject($val);
             } catch (\Throwable) {
@@ -445,52 +450,92 @@ class CollectionRenderer
             }
         }
 
-        // ── Repeater Matrix: blocks.subfield  or  blocks.typeName.subfield ───
+        // ── RepeaterMatrix ────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeRepeaterMatrix') {
             try {
-                $items = $page->getUnformatted($parentName);
+                $items = $page->get($parentName);
                 if (!$items || !count($items)) return '<span class="uk-text-muted">—</span>';
 
-                if ($seg3 !== '') {
-                    // 3-segment: blocks.hero.title → filter by type name, get subfield
-                    $typeName = $seg2;
-                    $subName  = $seg3;
+                // Wildcard: field.*.subfield or field.*.typeName.subfield
+                if ($seg2 === '*') {
+                    $parts = [];
                     foreach ($items as $item) {
-                        if (method_exists($item, 'matrix') && $item->matrix('name') === $typeName) {
-                            return $this->renderScalarOrObject($item->getUnformatted($subName));
-                        }
+                        try {
+                            if ($seg4 !== '') {
+                                // field.*.typeName.subfield
+                                if ($this->matrixTypeName($item, $fieldObj) !== $seg3) continue;
+                                $val = $item->get($seg4);
+                            } else {
+                                // field.*.subfield
+                                $val = $item->get($seg3);
+                            }
+                            $rendered = $this->renderScalarOrObject($val);
+                            if ($rendered !== '<span class="uk-text-muted">—</span>') $parts[] = $rendered;
+                        } catch (\Throwable) {}
                     }
-                    return '<span class="uk-text-muted">—</span>';
-                } else {
-                    // 2-segment: blocks.title → first item's subfield
-                    $first = $items->first();
-                    return $this->renderScalarOrObject($first ? $first->getUnformatted($seg2) : null);
+                    return $parts ? implode(', ', $parts) : '<span class="uk-text-muted">—</span>';
                 }
+
+                if ($seg3 !== '') {
+                    // Try seg2 as matrix type name
+                    $matrixItem = null;
+                    foreach ($items as $item) {
+                        try {
+                            if ($this->matrixTypeName($item, $fieldObj) === $seg2) {
+                                $matrixItem = $item;
+                                break;
+                            }
+                        } catch (\Throwable) {}
+                    }
+
+                    if ($matrixItem) {
+                        if ($seg4 !== '') {
+                            // field.type.repeaterField.subfield
+                            $repeaterVal = $this->resolveRepeater($matrixItem, $seg3);
+                            if ($repeaterVal instanceof \ProcessWire\PageArray && count($repeaterVal)) {
+                                return $this->renderScalarOrObject($repeaterVal->first()->get($seg4));
+                            }
+                            return $this->renderScalarOrObject($matrixItem->get($seg4));
+                        }
+                        return $this->renderScalarOrObject($matrixItem->get($seg3));
+                    }
+
+                    // seg2 is a field name, not a type — treat as: field.repeaterField.subfield
+                    $firstItem = $items->first();
+                    if (!$firstItem) return '<span class="uk-text-muted">—</span>';
+
+                    $repeaterVal = $this->resolveRepeater($firstItem, $seg2);
+                    if ($repeaterVal instanceof \ProcessWire\PageArray && count($repeaterVal)) {
+                        return $this->renderScalarOrObject($repeaterVal->first()->get($seg3));
+                    }
+                    return $this->renderScalarOrObject($firstItem->get($seg3));
+                }
+
+                // field.subfield — first item
+                $first = $items->first();
+                return $this->renderScalarOrObject($first ? $first->get($seg2) : null);
+
             } catch (\Throwable) {
                 return '<span class="uk-text-muted">—</span>';
             }
         }
 
-        // ── Table: prices.amount → first row col  /  prices.*.amount → all rows col
+        // ── Table ─────────────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeTable') {
             try {
                 $rows = $page->getUnformatted($parentName);
                 if (!$rows || !count($rows)) return '<span class="uk-text-muted">—</span>';
-
                 if ($seg2 === '*' && $seg3 !== '') {
-                    // prices.*.amount — collect named column from every row
                     return $this->renderTableColumn($rows, $seg3);
-                } else {
-                    // prices.amount — first row, named column
-                    $first = $rows->first();
-                    return $this->renderScalarOrObject($first ? $first->get($seg2) : null);
                 }
+                $first = $rows->first();
+                return $this->renderScalarOrObject($first ? $first->get($seg2) : null);
             } catch (\Throwable) {
                 return '<span class="uk-text-muted">—</span>';
             }
         }
 
-        // ── Generic PW fallback (e.g. repeater.title via native PW chaining) ──
+        // ── Generic PW fallback ───────────────────────────────────────────────
         try {
             $val = $page->get($dotField);
             return $this->renderScalarOrObject($val);
@@ -499,18 +544,34 @@ class CollectionRenderer
         }
     }
 
+    /**
+     * Safely get a Repeater field value from a page, normalising integer page IDs.
+     */
+    private function resolveRepeater($item, string $fieldName): mixed
+    {
+        $val = $item->get($fieldName);
+        if (is_int($val) || (is_string($val) && ctype_digit((string) $val))) {
+            $rPage = $this->wire->pages->get((int) $val);
+            return ($rPage && $rPage->id) ? $rPage->children() : null;
+        }
+        return $val;
+    }
+
     private function renderScalarOrObject($val): string
     {
         if ($val === null || $val === '' || $val === false) {
             return '<span class="uk-text-muted">—</span>';
         }
-        if ($val instanceof Pageimage)  return $this->renderThumbnail($val);
-        if ($val instanceof Pageimages) return count($val) ? $this->renderThumbnail($val->first()) : '<span class="uk-text-muted">—</span>';
-        if ($val instanceof Page)       return $this->renderPageRef($val);
-        if ($val instanceof PageArray)  return $this->renderPageArray($val);
-        if ($val instanceof WireArray) {
+        if ($val instanceof \ProcessWire\Pageimage)  return $this->renderThumbnail($val);
+        if ($val instanceof \ProcessWire\Pageimages) {
+            return count($val) ? $this->renderThumbnail($val->first()) : '<span class="uk-text-muted">—</span>';
+        }
+        if ($val instanceof \ProcessWire\SelectableOptionArray) return $this->renderOptions($val);
+        if ($val instanceof \ProcessWire\NullPage)  return '<span class="uk-text-muted">—</span>';
+        if ($val instanceof \ProcessWire\Page)       return $this->renderPageRef($val);
+        if ($val instanceof \ProcessWire\PageArray)  return $this->renderPageArray($val);
+        if ($val instanceof \ProcessWire\WireArray) {
             if (!count($val)) return '<span class="uk-text-muted">—</span>';
-            // SelectableOptionArray, RepeaterPageArray, etc. — join titles/strings
             $parts = [];
             foreach ($val as $item) {
                 $parts[] = method_exists($item, 'title') && $item->title
@@ -522,6 +583,10 @@ class CollectionRenderer
         // Native PHP array (e.g. selectMultiple stored as array)
         if (is_array($val)) {
             return $val ? $this->sanitizer->entities(implode(', ', $val)) : '<span class="uk-text-muted">—</span>';
+        }
+        // Object that stringifies — check if it looks like filenames (trap)
+        if (is_object($val)) {
+            return '<span class="uk-text-muted">—</span>';
         }
         $str = strip_tags((string) $val);
         if ($str === '') return '<span class="uk-text-muted">—</span>';
@@ -627,6 +692,45 @@ class CollectionRenderer
         return $this->sanitizer->entities(mb_substr($str, 0, 60));
     }
 
+    /**
+     * Safely get matrix type name from a RepeaterMatrixPage.
+     * matrix() is added via hook and may not be available in all contexts.
+     * Falls back to reading repeater_matrix_type integer and looking up via fieldObj config.
+     */
+    private function matrixTypeName($item, $fieldObj = null): string
+    {
+        // Try the matrix() hook method first
+        try {
+            if (method_exists($item, 'matrix')) {
+                return (string) $item->matrix('name');
+            }
+        } catch (\Throwable) {}
+
+        // Fallback: use repeater_matrix_type (integer n) + field config
+        try {
+            $n = (int) $item->getUnformatted('repeater_matrix_type');
+            if ($n > 0 && $fieldObj) {
+                $name = (string) $fieldObj->get("matrix{$n}_name");
+                if ($name !== '') return $name;
+            }
+        } catch (\Throwable) {}
+
+        return '';
+    }
+
+    private function matrixTypeN($item): int
+    {
+        try {
+            if (method_exists($item, 'matrix')) {
+                return (int) $item->matrix('n');
+            }
+        } catch (\Throwable) {}
+        try {
+            return (int) $item->getUnformatted('repeater_matrix_type');
+        } catch (\Throwable) {}
+        return 0;
+    }
+
     private function renderTableColumn($rows, string $colName): string
     {
         $vals = [];
@@ -649,21 +753,16 @@ class CollectionRenderer
         $label = $count === 1 ? 'item' : 'items';
         $badge = '<span class="uk-badge">' . $count . ' ' . $label . '</span>';
 
-        // Build per-type counts using matrix('name') on each RepeaterMatrixPage
+        // Build per-type counts using matrixTypeName() helper
         try {
             $typeCounts = [];
             foreach ($value as $item) {
-                // matrix() is a method on RepeaterMatrixPage; use method_exists for safety
-                if (method_exists($item, 'matrix')) {
-                    $typeName = (string) $item->matrix('name');
-                } else {
-                    $typeName = '';
-                }
+                $typeName = $this->matrixTypeName($item, $fieldObj);
 
                 // Prefer the human-readable label from field config
                 $displayLabel = $typeName;
                 if ($fieldObj && $typeName !== '') {
-                    $n = method_exists($item, 'matrix') ? (int) $item->matrix('n') : 0;
+                    $n = $this->matrixTypeN($item);
                     if ($n > 0) {
                         $cfgLabel = (string) $fieldObj->get("matrix{$n}_label");
                         if ($cfgLabel !== '') $displayLabel = $cfgLabel;

@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => 'ProcessCollections',
-            'version'     => 190,
+            'version'     => 191,
             'summary'     => 'Admin interface for Collections module',
             'author'      => 'Maxim Semenov',
             'requires'    => ['Collections'],
@@ -297,8 +297,6 @@ class ProcessCollections extends Process
         $this->wire('session')->redirect($this->wire('input')->url());
         return '';
     }
-
-    // ── Configure ─────────────────────────────────────────────────────────────
 
     private function renderDashboard(): string
     {

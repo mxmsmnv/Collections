@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.9.1 — 2026-04-25
+
+### Added
+
+- **Thumbnail size setting** — Global Settings now has a Width × Height input (32–128 px) for preview thumbnails. Previously hardcoded to 32×32. Value stored in `collections_global` as `thumb_width` / `thumb_height`.
+- **`matrixTypeName()` helper** — safe internal method for reading the matrix type name from a `RepeaterMatrixPage`. Falls back to reading `repeater_matrix_type` integer from the field config when the `matrix()` hook method is unavailable in the current context.
+- **`matrixTypeN()` helper** — companion to `matrixTypeName()`, returns the matrix type integer index.
+- **`resolveRepeater()` helper** — normalises a Repeater field value that PW returns as an integer page ID into a `RepeaterPageArray` by loading the container page and calling `->children()`.
+- **Matrix → Repeater → subfield path** — dot-notation now resolves three-segment paths where the middle segment is a Repeater field on a Matrix item rather than a type name (e.g. `media.property_photos.photos`).
+- **Combo Checkboxes array support in dot-notation** — `renderDotNotation` now resolves array values (multi-select Checkboxes subfields) through `resolveComboOptionLabel()` and joins them with `, `.
+
+### Fixed
+
+- **`RepeaterMatrixPageArray` intercepted by `instanceof PageArray`** — `FieldtypeRepeaterMatrix` dispatch was placed after the generic `PageArray` check, so matrix fields were rendered as plain page-reference arrays. Matrix branch is now checked first.
+- **`matrix()` hook not callable** — `method_exists()` and `hasMethod()` both fail for the `matrix()` hook method on `RepeaterMatrixPage` in the renderer context. Replaced with `matrixTypeName()` helper that catches exceptions and falls back to `getUnformatted('repeater_matrix_type')`.
+- **`getUnformatted()` on RepeaterMatrix returns raw IDs** — `renderCellValue()` and `renderDotNotation()` now use `$page->get()` (formatted) for `FieldtypeRepeaterMatrix` and `FieldtypeRepeater` fields. `getUnformatted()` on these types returns a comma-separated string of page IDs rather than a `RepeaterMatrixPageArray`.
+- **`Pageimages` cast to string showing filenames** — when `instanceof Pageimages` check failed due to missing namespace resolution, the object fell through to `(string) $val` which returns filenames comma-joined. `renderScalarOrObject()` now uses fully-qualified `\ProcessWire\Pageimage` / `\ProcessWire\Pageimages` class names and adds an `is_object()` trap as final guard.
+- **`SelectableOptionArray` rendering `1` instead of label** — `SelectableOptionArray` extends `WireArray`, so it was caught by the generic `WireArray` branch which cast each item with `(string)` returning the numeric ID. Now explicitly dispatched to `renderOptions()` before the `WireArray` check.
+- **`Array to string` warning from non-searchable ProField columns** — `buildSelector()` excluded dot-notation columns but still passed `FieldtypeTable` and similar non-searchable fields to the PW `%=` selector, causing internal array-to-string conversion. All non-searchable types now excluded from both text and page-ref search parts.
+
+### Changed
+
+- **Sidebar group order** — groups now render in fixed order: **Content → Taxonomy → Custom** (then any other groups alphabetically). Previously the order depended on which group appeared first among the configured collections. Applies to both the sidebar nav (`layout.php`) and the dashboard grid (`dashboard.php`).
+- **`renderScalarOrObject()`** — all `instanceof` checks now use fully-qualified `\ProcessWire\*` class names to avoid namespace resolution failures in the renderer context.
+
+---
+
 ## 1.9.0 — 2026-04-22
 
 ### Added

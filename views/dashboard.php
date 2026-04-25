@@ -11,6 +11,17 @@ $groups = [];
 foreach ($allCollections as $col) {
     $groups[$col->group][] = $col;
 }
+
+// Sort groups: content first, then taxonomy, then custom, then any others
+$groupOrder = ['content', 'taxonomy', 'custom'];
+$sorted = [];
+foreach ($groupOrder as $g) {
+    if (isset($groups[$g])) $sorted[$g] = $groups[$g];
+}
+foreach ($groups as $g => $cols) {
+    if (!isset($sorted[$g])) $sorted[$g] = $cols;
+}
+$groups = $sorted;
 ?>
 <div class="collections-dashboard">
 
