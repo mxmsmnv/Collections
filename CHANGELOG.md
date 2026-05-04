@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.9.2 — 2026-05-03
+
+### Fixed
+
+- **`FieldtypeDatetime` / `FieldtypeDate` showing unix timestamp** — date fields were only formatted when the column type was explicitly set to `date` in collection settings. Now auto-detected by `$ftName` so any datetime field renders correctly with the configured date format without manual override.
+- **`created` / `modified` system fields showing unix timestamp** — PW system fields `created` and `modified` were not handled in `renderCellValue()` and fell through to the generic scalar renderer, outputting a raw integer. Now explicitly caught before field lookup and passed through `formatDate()`.
+- **Filter dropdowns not applying** — `fetchTable()` in `collections.js` used `new URLSearchParams(params).toString()` which percent-encodes `[` and `]` as `%5B%5D`. PHP's array parsing requires literal brackets in `filter[field]=value`, so `$input->get('filter')` returned `null` instead of an array. Query string is now built manually to keep brackets unencoded.
+- **API log growing unbounded in production** — every API request and API key authentication wrote a line to the `collections` log regardless of environment. Both `log->save()` calls are now gated behind `$this->wire('config')->debug`, so logs are only written when Tracy / debug mode is active.
+- **Apply button not appearing when typing in search field** — the Apply button was only rendered inside the `if (!empty($filterOptions))` block, so it was absent from the DOM on collections without filter dropdowns, making `showApplyBtn()` a no-op. Button is now rendered unconditionally (always hidden by default) outside the filters block.
+- **Search input `input` event never firing** — `getElementById('collections-search-input')` and other direct DOM lookups ran at script parse time, before the DOM was ready (script loaded via `$config->scripts->add()` in `<head>`). All DOM-dependent initialisation is now wrapped in `DOMContentLoaded` handlers.
+- **Pressing Enter in search field losing active filters** — the search form submitted natively, discarding filter dropdown values that were applied via AJAX (hidden inputs in the form are server-rendered and not updated on the client). Form submit is now intercepted and routed through `fetchTable`, identical to clicking Apply.
+- **Clear button absent when filters restored from localStorage** — the Clear button was PHP-rendered only when `$params` had active filters, so on a clean page load it was missing from the DOM entirely. It is now always rendered (hidden by default) and shown/hidden via JS alongside the Apply button.
+- **Apply button not shown after localStorage restore** — `restoreFilterState()` restored UI controls and called `fetchTable` but never called `showApplyBtn()`, leaving the button hidden despite active filters being present.
+
+### Added
+
+- **Persistent filter state per collection** — search query and filter dropdown values are saved to `localStorage` under `collections_filters_{col}` after every successful table fetch. On page load, if the URL carries no active filters, the saved state is restored and the table is re-fetched automatically. Clicking Clear wipes the saved state so nothing is restored on the next visit.
+
+---
+
 ## 1.9.1 — 2026-04-25
 
 ### Added

@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => 'ProcessCollections',
-            'version'     => 191,
+            'version'     => 192,
             'summary'     => 'Admin interface for Collections module',
             'author'      => 'Maxim Semenov',
             'requires'    => ['Collections'],

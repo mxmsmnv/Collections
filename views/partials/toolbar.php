@@ -53,11 +53,15 @@ namespace ProcessWire;
     </div>
     <?php endif; ?>
 
-    <?php if ($params->search || !empty(array_filter($params->filters))): ?>
-    <div class="toolbar-clear">
-        <a href="?<?= !empty($_GET['col']) ? 'col=' . htmlspecialchars($_GET['col']) : '' ?>" class="uk-button uk-button-link uk-button-small">
+    <button type="button" id="collections-filter-apply"
+            class="ui-button ui-state-default"
+            style="display:none">
+        <span class="ui-button-text">Apply</span>
+    </button>
+
+    <div class="toolbar-clear" <?= (!$params->search && empty(array_filter($params->filters))) ? 'style="display:none"' : '' ?>>
+        <a href="?<?= !empty($_GET['col']) ? 'col=' . htmlspecialchars($_GET['col']) : '' ?>" class="ui-button ui-state-default ui-priority-secondary">
             <i class="fa fa-times"></i> Clear
         </a>
     </div>
-    <?php endif; ?>
 </div>

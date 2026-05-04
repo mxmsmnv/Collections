@@ -10,11 +10,11 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org>
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.1
+ * @version 1.9.2
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.1';
+    public const VERSION = '1.9.2';
 
     private ?CollectionConfig $collectionConfig = null;
 
@@ -22,7 +22,7 @@ class Collections extends WireData implements Module
     {
         return [
             'title'    => 'Collections',
-            'version'  => 191,
+            'version'  => 192,
             'summary'  => 'Configurable page collections with table UI and REST API',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://github.com/mxmsmnv/Collections',
@@ -76,8 +76,10 @@ class Collections extends WireData implements Module
 
         if (!$match) return;
 
-        // Only log actual API hits
-        $this->wire('log')->save('collections', "API request: {$requestUri}");
+        // Only log in debug mode — per-request logging causes unbounded log growth in production
+        if ($this->wire('config')->debug) {
+            $this->wire('log')->save('collections', "API request: {$requestUri}");
+        }
         $this->handleApiRequest($apiBase);
     }
 
@@ -138,7 +140,9 @@ class Collections extends WireData implements Module
                 if ($su && $su->id) {
                     $this->wire('users')->setCurrentUser($su);
                 }
-                $this->wire('log')->save('collections', "API key auth: {$keyData['name']} ({$keyData['key_prefix']}...)");
+                if ($this->wire('config')->debug) {
+                    $this->wire('log')->save('collections', "API key auth: {$keyData['name']} ({$keyData['key_prefix']}...)");
+                }
             }
         }
 

@@ -44,35 +44,152 @@
 
     // ── Live search ───────────────────────────────────────────────────────────
 
-    let searchTimer = null;
-    const searchInput = document.getElementById('collections-search-input');
-
-    if (searchInput && cfg.liveSearch) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimer);
-            const val = this.value.trim();
-
-            if (val.length > 0 && val.length < (cfg.minSearchLength || 2)) return;
-
-            searchTimer = setTimeout(() => {
-                const p = getCurrentParams();
-                p.q = val;
-                p.page = 1;
-                fetchTable(p);
-            }, 300);
+    // Always read current filter values from DOM selects (not from URL)
+    function getFilterParams() {
+        const params = {};
+        document.querySelectorAll('.collections-filter').forEach(sel => {
+            params[`filter[${sel.dataset.field}]`] = sel.value;
         });
+        return params;
+    }
+
+    // ── Filter state persistence (localStorage) ───────────────────────────────
+
+    function filterStorageKey() {
+        const col = getColParam();
+        return col ? 'collections_filters_' + col : null;
+    }
+
+    function saveFilterState() {
+        const key = filterStorageKey();
+        if (!key) return;
+        const si = document.getElementById('collections-search-input');
+        const state = { q: si ? si.value : '', filters: {} };
+        document.querySelectorAll('.collections-filter').forEach(sel => {
+            if (sel.value) state.filters[sel.dataset.field] = sel.value;
+        });
+        if (state.q || Object.keys(state.filters).length) {
+            localStorage.setItem(key, JSON.stringify(state));
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
+
+    function clearFilterState() {
+        const key = filterStorageKey();
+        if (key) localStorage.removeItem(key);
+    }
+
+    function restoreFilterState() {
+        const key = filterStorageKey();
+        if (!key) return;
+
+        // URL already has active filters — server state takes priority
+        const urlParams = new URLSearchParams(location.search);
+        const hasUrlFilters = urlParams.has('q') ||
+            [...urlParams.keys()].some(k => k.startsWith('filter['));
+        if (hasUrlFilters) return;
+
+        let state;
+        try { state = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return; }
+        if (!state) return;
+
+        const hasState = state.q || Object.keys(state.filters || {}).length;
+        if (!hasState) return;
+
+        // Restore UI controls
+        const si = document.getElementById('collections-search-input');
+        if (si && state.q) si.value = state.q;
+        document.querySelectorAll('.collections-filter').forEach(sel => {
+            const val = (state.filters || {})[sel.dataset.field];
+            if (val !== undefined) sel.value = val;
+        });
+        showApplyBtn();
+        showClearBtn();
+
+        // Fetch with restored params
+        const params = getCurrentParams();
+        if (state.q) params['q'] = state.q;
+        Object.keys(state.filters || {}).forEach(field => {
+            params[`filter[${field}]`] = state.filters[field];
+        });
+        params['page'] = 1;
+        fetchTable(params);
     }
 
     // ── Filter dropdowns ──────────────────────────────────────────────────────
 
-    document.querySelectorAll('.collections-filter').forEach(sel => {
-        sel.addEventListener('change', function() {
-            const params = getCurrentParams();
-            const field  = this.dataset.field;
-            params[`filter[${field}]`] = this.value;
-            params['page'] = 1;
-            fetchTable(params);
-        });
+    function showApplyBtn() {
+        const btn = document.getElementById('collections-filter-apply');
+        if (btn) btn.style.display = 'inline-flex';
+    }
+
+    function showClearBtn() {
+        const el = document.querySelector('.toolbar-clear');
+        if (el) el.style.display = '';
+    }
+
+    function hideClearBtn() {
+        const el = document.querySelector('.toolbar-clear');
+        if (el) el.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('collections-search-input');
+
+        // Bind search input → show Apply button
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                showApplyBtn();
+            });
+        }
+
+        // Show Apply button if any filter or search is already active on load
+        const hasActiveFilter = (searchInput && searchInput.value !== '') ||
+            Array.from(document.querySelectorAll('.collections-filter')).some(sel => sel.value !== '');
+        if (hasActiveFilter) showApplyBtn();
+
+        restoreFilterState();
+    });
+
+    // Intercept search form submit (Enter key) — use AJAX like Apply button
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('#collections-search-form');
+        if (!form) return;
+        e.preventDefault();
+        const si = document.getElementById('collections-search-input');
+        const params = getCurrentParams();
+        Object.assign(params, getFilterParams());
+        if (si) params['q'] = si.value;
+        params['page'] = 1;
+        fetchTable(params);
+    });
+
+    // Show Apply button when any filter select changes (event delegation)
+    document.addEventListener('change', function(e) {
+        const sel = e.target.closest('.collections-filter');
+        if (!sel) return;
+        showApplyBtn();
+    });
+
+    // Apply all filters + search on button click
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('#collections-filter-apply');
+        if (!btn) return;
+        const params = getCurrentParams();
+        Object.assign(params, getFilterParams());
+        const si = document.getElementById('collections-search-input');
+        if (si) params['q'] = si.value;
+        params['page'] = 1;
+        fetchTable(params);
+    });
+
+    // Clear button — wipe saved state before navigating
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('.toolbar-clear a');
+        if (!link) return;
+        clearFilterState();
+        hideClearBtn();
     });
 
     // ── Sort links (async) ────────────────────────────────────────────────────
@@ -122,7 +239,18 @@
 
         resultEl.style.opacity = '0.5';
 
-        const qs  = new URLSearchParams(params).toString();
+        // Build query string manually — URLSearchParams encodes [ and ] as %5B%5D
+        // which PHP cannot parse as array, breaking filter[field] params
+        const parts = [];
+        for (const [k, v] of Object.entries(params)) {
+            if (v === '' || v === null || v === undefined) continue;
+            if (k.startsWith('filter[')) {
+                parts.push(k + '=' + encodeURIComponent(v));
+            } else {
+                parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+            }
+        }
+        const qs  = parts.join('&');
         const url = location.pathname + '?' + qs;
 
         fetch(url, {
@@ -145,6 +273,7 @@
             }
             resultEl.style.opacity = '1';
             history.replaceState(null, '', url);
+            saveFilterState();
             // Reset checkboxes and bulk bar after table reload
             const checkAll = resultEl.querySelector('.collections-check-all');
             if (checkAll) checkAll.checked = false;
@@ -210,14 +339,16 @@
         submitBulk(action, ids);
     });
 
-    const cancelBtn = document.getElementById('collections-bulk-cancel');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function() {
-            document.querySelectorAll('.collections-check, .collections-check-all').forEach(cb => cb.checked = false);
-            document.querySelectorAll('tr.row-selected').forEach(r => r.classList.remove('row-selected'));
-            updateBulkBar();
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelBtn = document.getElementById('collections-bulk-cancel');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                document.querySelectorAll('.collections-check, .collections-check-all').forEach(cb => cb.checked = false);
+                document.querySelectorAll('tr.row-selected').forEach(r => r.classList.remove('row-selected'));
+                updateBulkBar();
+            });
+        }
+    });
 
     function getCsrf() {
         // Read from our own #collections-csrf div — rendered server-side with renderInput()
@@ -435,7 +566,7 @@
         updateBulkBar();
     }
 
-    bindRowEvents();
+    document.addEventListener('DOMContentLoaded', bindRowEvents);
 
     // ── Icon Picker (event delegation) ─────────────────────────────────────
 

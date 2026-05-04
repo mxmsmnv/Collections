@@ -156,6 +156,9 @@ class CollectionRenderer
         if ($field === 'id')     return (string) $page->id;
         if ($field === 'name')   return $this->sanitizer->entities($page->name);
         if ($field === 'status') return $this->renderStatus($page->status);
+        if ($field === 'created' || $field === 'modified') {
+            return $this->formatDate($page->$field);
+        }
 
         // ── Dot-notation: fieldName.subField ──────────────────────────────────
         if (str_contains($field, '.')) {
@@ -181,6 +184,11 @@ class CollectionRenderer
         if ($type === 'number') return '<span class="uk-text-right">' . number_format((float)$value, 2) . '</span>';
         if ($type === 'status') return $this->renderStatus($value);
         if ($type === 'bool')   return $this->renderBool((bool)$value);
+
+        // ── Auto-detect datetime fields ───────────────────────────────────────
+        if (in_array($ftName, ['FieldtypeDatetime', 'FieldtypeDate'])) {
+            return $this->formatDate($value);
+        }
 
         // ── Images ────────────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeImage') {
