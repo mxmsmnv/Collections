@@ -71,6 +71,25 @@ final class Collection
         );
     }
 
+    /**
+     * Whether the "Add" button should be shown for this collection.
+     * Respects the template noParents setting:
+     *   1  → no new pages allowed
+     *  -1  → singleton; only allowed while no page using it exists
+     */
+    public function canAddNew(): bool
+    {
+        $template = wire('templates')->get($this->template);
+        if (!$template || !$template->id) return false;
+
+        $noParents = (int) $template->noParents;
+        if ($noParents === 1) return false;
+        if ($noParents === -1) {
+            return $template->getNumPages() === 0;
+        }
+        return true;
+    }
+
     public function buildSelector(string $search = '', array $filters = []): string
     {
         $parts = ["template={$this->template}"];

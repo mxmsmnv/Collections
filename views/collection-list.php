@@ -39,7 +39,7 @@ $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
             </div>
         </div>
         <?php endif; ?>
-        <?php if ($canCreate): ?>
+        <?php if ($canCreate && $collection->canAddNew()): ?>
         <?php
         $addTemplate = $wire->templates->get($collection->template);
         $addUrl = $adminUrl . 'page/add/';
