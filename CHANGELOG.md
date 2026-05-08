@@ -1,6 +1,20 @@
 # Changelog
 
-## 1.9.2 — 2026-05-03
+## 1.9.3 — 2026-05-08
+
+### Fixed
+
+- **Collection default sort direction ignored** — `$params->sortDir` defaults to `'asc'` (a non-empty string), so `$params->sortDir ?: $collection->sortDir` always resolved to `'asc'`, never falling through to the configured direction. Fixed by checking `$input->get('sort')` to distinguish an explicit URL sort from the default, and using collection `sortBy`/`sortDir` as a pair when no URL sort is present.
+- **View icon shown for pages without a template view file** — the View action was displayed for any page with a non-empty URL, even when no frontend template file existed, resulting in a 404 on click. Now gated behind `$page->viewable()`.
+- **Add button shown when template disallows new pages** — the "Add" button appeared regardless of the template's `noParents` setting. Added `canAddNew()` to `Collection` which returns `false` when `noParents = 1` (no new pages) or `noParents = -1` and a page with that template already exists (singleton).
+
+### Added
+
+- **Sort indicator in selector note** — the `Selector:` details block now shows the active sort field and direction inline (e.g. `· Sort: created DESC`), reflecting either the URL override or the collection default.
+
+---
+
+## 1.9.2 — 2026-05-04
 
 ### Fixed
 
@@ -13,8 +27,6 @@
 - **Pressing Enter in search field losing active filters** — the search form submitted natively, discarding filter dropdown values that were applied via AJAX (hidden inputs in the form are server-rendered and not updated on the client). Form submit is now intercepted and routed through `fetchTable`, identical to clicking Apply.
 - **Clear button absent when filters restored from localStorage** — the Clear button was PHP-rendered only when `$params` had active filters, so on a clean page load it was missing from the DOM entirely. It is now always rendered (hidden by default) and shown/hidden via JS alongside the Apply button.
 - **Apply button not shown after localStorage restore** — `restoreFilterState()` restored UI controls and called `fetchTable` but never called `showApplyBtn()`, leaving the button hidden despite active filters being present.
-- **Collection default sort direction ignored** — `$params->sortDir` defaults to `'asc'` (a non-empty string), so `$params->sortDir ?: $collection->sortDir` always resolved to `'asc'`, never falling through to the configured direction. Fixed by checking `$input->get('sort')` to distinguish an explicit URL sort from the default, and using collection `sortBy`/`sortDir` as a pair when no URL sort is present.
-- **Sort badge in selector note shows active sort** — the `Selector:` details block now displays the effective sort field and direction inline (e.g. `Sort: created DESC`), reflecting either the URL override or the collection default.
 
 ### Added
 
