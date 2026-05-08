@@ -149,8 +149,8 @@ class ProcessCollections extends Process
             page:    $params->page,
             perPage: $input->get('per_page') ? $params->perPage : $defaultPP,
             search:  $params->search,
-            sortBy:  $params->sortBy ?: $collection->sortBy,
-            sortDir: $params->sortDir ?: $collection->sortDir,
+            sortBy:  $input->get('sort') ? $params->sortBy : $collection->sortBy,
+            sortDir: $input->get('sort') ? $params->sortDir : $collection->sortDir,
             filters: $params->filters,
         );
 

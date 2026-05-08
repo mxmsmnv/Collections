@@ -59,17 +59,23 @@ $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
 $displaySelector = $collection->buildSelector($params->search, array_filter($params->filters ?? []));
 // Strip dynamic search/filter parts for the "base" selector note
 $baseSelector = $collection->buildSelector();
+// Effective sort (URL params override collection defaults)
+$effectiveSortBy  = ($params->sortBy && $wire->fields->get($params->sortBy)) ? $params->sortBy : ($collection->sortBy ?: 'title');
+$effectiveSortDir = ($params->sortBy && $wire->fields->get($params->sortBy)) ? $params->sortDir : ($collection->sortDir ?: 'asc');
 ?>
 <details class="collections-selector-note">
     <summary>
         <i class="fa fa-info-circle"></i>
         Selector: <code><?= htmlspecialchars($baseSelector) ?></code>
+        &nbsp;·&nbsp;
+        Sort: <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code>
     </summary>
     <div class="selector-note-body">
         <p><strong>Base selector:</strong> <code><?= htmlspecialchars($baseSelector) ?></code></p>
         <?php if ($params->search || !empty(array_filter($params->filters ?? []))): ?>
         <p><strong>Current query:</strong> <code><?= htmlspecialchars($displaySelector) ?></code></p>
         <?php endif; ?>
+        <p><strong>Sort:</strong> <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code></p>
         <p class="selector-note-hint">This selector defines what pages appear in this collection.</p>
     </div>
 </details>

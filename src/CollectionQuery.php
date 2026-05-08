@@ -20,7 +20,7 @@ class CollectionQuery
             && !wire('fields')->get($sortField)) {
             $sortField = $collection->sortBy ?: 'title';
         }
-        $sortDir  = $params->sortDir === 'desc' ? '-' : '';
+        $sortDir = strtolower((string) $params->sortDir) === 'desc' ? '-' : '';
         $selector .= ", sort={$sortDir}{$sortField}";
 
         // Pagination
