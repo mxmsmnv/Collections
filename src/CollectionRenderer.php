@@ -156,7 +156,7 @@ class CollectionRenderer
         if ($field === 'id')     return (string) $page->id;
         if ($field === 'name')   return $this->sanitizer->entities($page->name);
         if ($field === 'status') return $this->renderStatus($page->status);
-        if ($field === 'created' || $field === 'modified') {
+        if ($field === 'created' || $field === 'modified' || $field === 'published') {
             return $this->formatDate($page->$field);
         }
 
