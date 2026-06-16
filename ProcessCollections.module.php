@@ -21,6 +21,7 @@ class ProcessCollections extends Process
             'version'     => 193,
             'summary'     => 'Admin interface for Collections module',
             'author'      => 'Maxim Semenov',
+            'href'     => 'https://smnv.org',
             'requires'    => ['Collections'],
             'autoload'    => false,
             'singular'    => true,

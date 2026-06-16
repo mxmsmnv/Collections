@@ -8,7 +8,7 @@ namespace ProcessWire;
  * ProcessWire module providing a unified interface for managing groups of pages
  * (collections) with configurable tables, search, filters, and REST API.
  *
- * @author  Maxim Semenov <maxim@smnv.org>
+ * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
  * @version 1.9.3
  */
@@ -25,7 +25,7 @@ class Collections extends WireData implements Module
             'version'  => 193,
             'summary'  => 'Configurable page collections with table UI and REST API',
             'author'   => 'Maxim Semenov',
-            'href'     => 'https://github.com/mxmsmnv/Collections',
+            'href'     => 'https://smnv.org',
             'requires' => ['ProcessWire>=3.0.244', 'PHP>=8.2'],
             'installs' => ['ProcessCollections'],
             'autoload' => true,
