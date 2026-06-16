@@ -4,6 +4,8 @@
 **Author:** Maxim Semenov · [smnv.org](https://smnv.org) · maxim@smnv.org  
 **GitHub:** [github.com/mxmsmnv/Collections](https://github.com/mxmsmnv/Collections)
 
+If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).  
+
 ---
 
 ## The Problem
