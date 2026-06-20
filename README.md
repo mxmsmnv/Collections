@@ -3,6 +3,8 @@
 **Requires:** ProcessWire 3.0.244+, PHP 8.2+  
 **GitHub:** [github.com/mxmsmnv/Collections](https://github.com/mxmsmnv/Collections)
 
+![Collections](assets/Collections.png)
+
 **Author:** Maxim Semenov  
 **Website:** [smnv.org](https://smnv.org)  
 **Email:** [maxim@smnv.org](mailto:maxim@smnv.org)
