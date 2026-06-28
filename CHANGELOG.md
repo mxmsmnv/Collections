@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.9.4 — 2026-06-28
+
+### Added
+
+- **User-definable collection groups** — the Group control in Configure is now a text input with suggestions for `content`, `taxonomy`, `custom`, plus any custom groups already used by existing collections. Custom group names are sanitized with ProcessWire's name sanitizer and still fall back to `content` when empty.
+
+### Changed
+
+- **README updated for current collection settings** — documented custom groups, group name rules, per-collection export toggle, order, related-page search, and the current REST API capability summary.
+
+---
+
 ## 1.9.3 — 2026-05-08
 
 ### Fixed

@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => 'ProcessCollections',
-            'version'     => 193,
+            'version'     => 194,
             'summary'     => 'Admin interface for Collections module',
             'author'      => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -475,7 +475,7 @@ class ProcessCollections extends Process
             'template'      => $san->name($post->text('template')),
             'selector'      => $san->text($post->text('selector')),
             'icon'          => $san->text($post->text('icon') ?: 'fa-list'),
-            'group'         => in_array($post->text('group'), ['content', 'taxonomy', 'custom']) ? $post->text('group') : 'content',
+            'group'         => $san->name($post->text('group')) ?: 'content',
             'columns'       => $columns ?: ['title'],
             'searchFields'  => $searchFields ?: ['title'],
             'sortBy'        => $san->fieldName($post->text('sortBy') ?: 'title'),

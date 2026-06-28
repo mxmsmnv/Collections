@@ -9,7 +9,7 @@
 **Website:** [smnv.org](https://smnv.org)  
 **Email:** [maxim@smnv.org](mailto:maxim@smnv.org)
 
-If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).  
+If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).
 
 ---
 
@@ -68,6 +68,7 @@ iOS/Android apps consume the Collections API. API keys with expiration dates and
 
 **Admin UI**
 - Configurable table columns per collection with custom labels
+- User-definable sidebar groups, with `content`, `taxonomy`, `custom`, and existing custom groups offered as suggestions
 - Live search with 300ms debounce, multi-field, including Page reference fields
 - Dropdown filters for FieldtypePage and FieldtypeOptions fields
 - Inline status toggle (publish / unpublish) via AJAX — no page reload
@@ -79,7 +80,7 @@ iOS/Android apps consume the Collections API. API keys with expiration dates and
 - Admin UI colors adapt to ProcessWire's `--pw-main-color` theme variable
 
 **Data**
-- CSV and JSON export with current search/filter state preserved
+- CSV and JSON export with current search/filter state preserved, toggleable per collection
 - Configuration export / import as JSON
 - Role-based permissions matrix (global and per-collection)
 
@@ -90,6 +91,7 @@ iOS/Android apps consume the Collections API. API keys with expiration dates and
 - Usage tracking: last used timestamp, request count
 - Rate limit: 100 requests/minute per IP per collection (HTTP 429 on excess)
 - WireCache support for GET responses (configurable TTL)
+- Endpoints for list, read, create, update, delete, bulk actions, schema, and export
 
 **Field Types Supported**
 Text, Textarea, Integer, Float, Checkbox, URL, Email, Color (hex), Date/Datetime, Image, File, FieldtypeFileB2, FieldtypePage (single and multi), FieldtypeOptions, MapMarker, Profields Table, Profields Textareas, Profields Multiplier, Profields Repeater Matrix, Profields Combo
@@ -136,11 +138,16 @@ Go to **Admin → Collections → Configure**, click **New Collection** and fill
 | Selector | `parent.name=shop` | Optional extra PW selector to scope results |
 | Columns | `title, sku, brand, country, modified` | Comma-separated field names |
 | Search fields | `title, sku` | Fields queried by the search bar |
+| Search related | enabled | Also search titles of related Page reference fields |
 | Sort by | `title` | Default sort field |
 | Sort dir | `asc` | `asc` or `desc` |
 | Per page | `40` | Overrides global default (0 = use global) |
-| Group | `content` | Sidebar group label |
+| Order | `10` | Position in the sidebar/dashboard group |
+| Group | `content` | Sidebar group key. Use `content`, `taxonomy`, `custom`, or type a custom group name |
 | Icon | `fa-box` | FontAwesome 4 icon class |
+| Export enabled | enabled | Allows CSV / JSON export for this collection |
+
+Group names are sanitized as ProcessWire names (`a-z`, `0-9`, `_`, `-`). The configure form suggests the three built-in groups plus any custom groups already used by existing collections.
 
 ---
 

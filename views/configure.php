@@ -9,6 +9,14 @@ namespace ProcessWire;
 /** @var array $matrix */
 /** @var array $templates */
 /** @var string $adminUrl */
+
+$groupSuggestions = ['content', 'taxonomy', 'custom'];
+foreach ($collections as $existingCol) {
+    $group = $existingCol->group;
+    if ($group !== '' && !in_array($group, $groupSuggestions, true)) {
+        $groupSuggestions[] = $group;
+    }
+}
 ?>
 
 <div class="collections-configure">
@@ -493,11 +501,14 @@ namespace ProcessWire;
                 </div>
                 <div>
                     <label class="uk-form-label">Group</label>
-                    <select name="group" id="field-group" class="uk-select">
-                        <option value="content">content</option>
-                        <option value="taxonomy">taxonomy</option>
-                        <option value="custom">custom</option>
-                    </select>
+                    <input type="text" name="group" id="field-group" class="uk-input"
+                           list="group-options" autocomplete="off"
+                           placeholder="content, taxonomy, custom, or a new name">
+                    <datalist id="group-options">
+                        <?php foreach ($groupSuggestions as $group): ?>
+                        <option value="<?= $wire->sanitizer->entities($group) ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
                 </div>
                 <div>
                     <label class="uk-form-label">Sort by / Direction</label>
