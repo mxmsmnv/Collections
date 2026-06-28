@@ -10,11 +10,11 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.4
+ * @version 1.9.5
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.4';
+    public const VERSION = '1.9.5';
 
     private ?CollectionConfig $collectionConfig = null;
 
@@ -22,7 +22,7 @@ class Collections extends WireData implements Module
     {
         return [
             'title'    => 'Collections',
-            'version'  => 194,
+            'version'  => 195,
             'summary'  => 'Configurable page collections with table UI and REST API',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',

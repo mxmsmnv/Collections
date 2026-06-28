@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.5 — 2026-06-28
+
+### Fixed
+
+- **`published` system field date formatting** — `published` now uses the configured date formatter in collection tables, matching `created` and `modified`. Thanks to Torsten Baldes (`tobaco`) for PR #2.
+
+---
+
 ## 1.9.4 — 2026-06-28
 
 ### Added
