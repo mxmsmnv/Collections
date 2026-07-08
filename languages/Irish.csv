@@ -1,0 +1,225 @@
+en,ga,description,file,hash
+ProcessCollections,ProcessCollections,,site/modules/Collections/ProcessCollections.module.php,e34bff35f27b639f9f253768df0c514c
+Admin interface for Collections module,Comhéadan riaracháin don mhodúl Bailiúcháin,,site/modules/Collections/ProcessCollections.module.php,9a4be1c2856d00bf06bdfbe3aefd705a
+Collection not found: %s,Bailiúchán gan aimsiú: %s,,site/modules/Collections/ProcessCollections.module.php,60e7e45d5f8e141d9be59c5d2bcc0dac
+Showing %1$s-%2$s of %3$s items,Ag taispeáint %1$s-%2$s de mhíreanna %3$s,,site/modules/Collections/ProcessCollections.module.php,071a70d724009b925e31491749b60f63
+No items found,Níor aimsíodh aon rud,,site/modules/Collections/ProcessCollections.module.php,5ece607071fe59ddc4c88dc6abfe2310
+"filtered by ""%s""","scagtha ag ""%s""",,site/modules/Collections/ProcessCollections.module.php,6302a49de99c45ffceb9782c41ca825b
+Collections,Collections,,site/modules/Collections/ProcessCollections.module.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Invalid CSRF token,Comhartha CSRF neamhbhailí,,site/modules/Collections/ProcessCollections.module.php,d6f26bcff9d1d786a9801abb85ca727c
+Unknown bulk action: %s,Gníomh mórchóir anaithnid: %s,,site/modules/Collections/ProcessCollections.module.php,5efdee0a4b9abc91e440fc6124651578
+Not allowed: %s,Ní cheadaítear: %s,,site/modules/Collections/ProcessCollections.module.php,25ce94023350880942f0754e9fbff059
+Page %1$d: %2$s,Leathanach %1$d: %2$s,,site/modules/Collections/ProcessCollections.module.php,11bfd018b0986c449165a130805ee9c2
+%d pages updated.,Leathanaigh %d nuashonraithe.,,site/modules/Collections/ProcessCollections.module.php,ef4c1bcdc184066b86ab9de864ea7ca0
+Configure Collections,Cumraigh Bailiúcháin,,site/modules/Collections/ProcessCollections.module.php,92b07080200bfa7f1eb471cd196a921d
+Invalid request,Iarratas neamhbhailí,,site/modules/Collections/ProcessCollections.module.php,446b416d535ed3f547fcd653dc11d49c
+Page not found,Ní bhfuarthas an leathanach,,site/modules/Collections/ProcessCollections.module.php,d0fbda9855d118740f1105334305c126
+Collection key is required,Tá eochair bhailiúcháin ag teastáil,,site/modules/Collections/ProcessCollections.module.php,dea1921fdbe9eb375ff1171f050966b9
+Key '%s' is reserved and cannot be used. Choose a different key.,Tá an eochair '%s' in áirithe agus ní féidir í a úsáid. Roghnaigh eochair eile.,,site/modules/Collections/ProcessCollections.module.php,dbfd307533eaf7e7e50b595a4e6781d4
+Collection '%s' saved.,Bailiúchán '%s' sábháilte.,,site/modules/Collections/ProcessCollections.module.php,8f82dfc6e30e0fc22ac96a9c93239cb9
+Global settings saved.,Socruithe domhanda sábháilte.,,site/modules/Collections/ProcessCollections.module.php,6b8dfee8c933298a060880374d3805ad
+Permissions saved.,Ceadanna sábháilte.,,site/modules/Collections/ProcessCollections.module.php,1a5ad8148c9929efe6003e0525232393
+Collection '%s' deleted.,Scriosadh an bailiúchán '%s'.,,site/modules/Collections/ProcessCollections.module.php,a0b84000666a37dd455d3621c20bd37c
+Upload failed.,Theip ar an uaslódáil.,,site/modules/Collections/ProcessCollections.module.php,cde28f5998d2dd5da84a4ab21143bc67
+Invalid JSON file.,Comhad JSON neamhbhailí.,,site/modules/Collections/ProcessCollections.module.php,cd96b33cab7aa22307c0fd49a2039505
+Configuration imported successfully.,D'éirigh le hiompórtáil an chumraíocht.,,site/modules/Collections/ProcessCollections.module.php,161ac898800fae05b2f686ff0a3e25ef
+API key name is required.,Tá ainm eochair API ag teastáil.,,site/modules/Collections/ProcessCollections.module.php,fb9fc814a925640362c7eec4fafddfa3
+API key '%s' created.,Cruthaíodh eochair API '%s'.,,site/modules/Collections/ProcessCollections.module.php,ac966c856ed4ef96fb1ff8909dde9288
+Failed to create API key.,Theip ar chruthú eochair API.,,site/modules/Collections/ProcessCollections.module.php,b7012ffe0146baabe42adef3bc123c70
+API key deleted.,Scriosadh eochair API.,,site/modules/Collections/ProcessCollections.module.php,809084a20d9966b10dd7418d6183a0bf
+Collections,Collections,,site/modules/Collections/Collections.module.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Configurable page collections with table UI and REST API,Bailiúcháin leathanach inchumraithe le UI tábla agus API REST,,site/modules/Collections/Collections.module.php,fb57b4acf97be807b716aeb2f87e8fe3
+Collections admin page updated.,Nuashonraíodh leathanach riaracháin na mbailiúchán.,,site/modules/Collections/Collections.module.php,2ce117b312fe5ae82c5e9906b168405d
+Collections admin page created at: %s,Leathanach riaracháin na mbailiúchán cruthaithe ag: %s,,site/modules/Collections/Collections.module.php,4639ef8bd71d36901cceed206223271f
+Collections installed. Go to Admin > Collections to get started.,Bailiúcháin suiteáilte. Téigh chuig Riarachán > Bailiúcháin chun tús a chur leis.,,site/modules/Collections/Collections.module.php,b0a025d2d0cc966aa99d59ba2f5957ee
+Collections uninstalled. Custom tables dropped.,Bailiúcháin díshuiteáilte. Thit táblaí saincheaptha.,,site/modules/Collections/Collections.module.php,4aaebb76c7c4e31ecc54421ab8cf1817
+Collections admin page process updated.,Próiseas leathanach riaracháin na mbailiúchán nuashonraithe.,,site/modules/Collections/Collections.module.php,c45c90637663c01ea9e837bd124a8d36
+Collections admin page recreated.,Athchruthaíodh leathanach riaracháin na mbailiúchán.,,site/modules/Collections/Collections.module.php,892a241617fcef2a7101bc3a6c52b958
+View in %s,Amharc i %s,,site/modules/Collections/Collections.module.php,81c2f39bb320468b7bfcca2e0524d033
+Collection,Bailiúchán,,site/modules/Collections/Collections.module.php,d15b505cce09406de9f918cb1f8c641c
+Open in %s,Oscail i %s,,site/modules/Collections/Collections.module.php,26770172c5c0b82a760b9b2e37a2823a
+Configure Collections,Cumraigh Bailiúcháin,,site/modules/Collections/views/configure.php,92b07080200bfa7f1eb471cd196a921d
+New Collection,Bailiúchán Nua,,site/modules/Collections/views/configure.php,2903226e131442c2af1a9a4f1b27c3b4
+Export Config,Cumraíocht Easpórtála,,site/modules/Collections/views/configure.php,9b63cf00d761ea6322aea148266bcfd4
+Collections,Collections,,site/modules/Collections/views/configure.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Global Settings,Socruithe Domhanda,,site/modules/Collections/views/configure.php,9a51a007b33a46e553def6423aad8648
+API,API,,site/modules/Collections/views/configure.php,db974238714ca8de634a7ce1d083a14f
+Permissions,Ceadanna,,site/modules/Collections/views/configure.php,d08ccf52b4cdd08e41cfb99ec42e0b29
+Import / Export,Iompórtáil / Easpórtáil,,site/modules/Collections/views/configure.php,97ccd1af9113ed7817b0a3c77b8ac1de
+"No collections defined yet. Click ""New Collection"" to get started.","Níl aon bhailiúcháin sainithe fós. Cliceáil ""Bailiúchán Nua"" chun tús a chur leis.",,site/modules/Collections/views/configure.php,ffd65a87747e631203daf390df61e49a
+Key,eochair,,site/modules/Collections/views/configure.php,897356954c2cd3d41b221e3f24f99bba
+Label,Lipéad,,site/modules/Collections/views/configure.php,b021df6aac4654c454f46c77646e745f
+Template,Teimpléad,,site/modules/Collections/views/configure.php,278c491bdd8a53618c149c4ac790da34
+Columns,Colúin,,site/modules/Collections/views/configure.php,168b82d33f8073018c50a4f658a02559
+Items,Míreanna,,site/modules/Collections/views/configure.php,9dea4016dbcc290b773ab2fae678aaa8
+Order,Ordú,,site/modules/Collections/views/configure.php,a240fa27925a635b08dc28c9e4f9216d
+Actions,Gníomhartha,,site/modules/Collections/views/configure.php,06df33001c1d7187fdd81ea1f5b277aa
+View,Amharc,,site/modules/Collections/views/configure.php,4351cfebe4b61d8aa5efa1d020710005
+Edit,Cuir in eagar,,site/modules/Collections/views/configure.php,7dce122004969d56ae2e0245cb754d35
+Delete,Scrios,,site/modules/Collections/views/configure.php,f2a6c498fb90ee345d997f888fce3b18
+Table Display,Taispeáint Tábla,,site/modules/Collections/views/configure.php,4380e874c0ac83236a4e994e4357a3a3
+Show ID column,Taispeáin colún aitheantais,,site/modules/Collections/views/configure.php,627415a29ac26dc00608dec10ab7b366
+Show Status column,Taispeáin colún Stádais,,site/modules/Collections/views/configure.php,3f73e9b4bcdfb87c00f2638338297665
+Show Name column,Taispeáin colún Ainm,,site/modules/Collections/views/configure.php,3a7860ee0da08b56d66dddf4168afd12
+Inline status toggle,Scoránaigh stádais inlíne,,site/modules/Collections/views/configure.php,138f9acfface38061fe68f5dbb8e366a
+Quick delete button,Cnaipe tapa scriosta,,site/modules/Collections/views/configure.php,92e8fb572a809c98ce0b83685fbab894
+Confirm batch delete,Deimhnigh scriosadh baisc,,site/modules/Collections/views/configure.php,d0afc4a183c877741b4d1d2d835c8bee
+Default per page,Réamhshocrú in aghaidh an leathanaigh,,site/modules/Collections/views/configure.php,b3f520ac282cf813459541525870d1be
+Date format (PHP),Formáid dáta (PHP),,site/modules/Collections/views/configure.php,aa96e98f3b83fc52f312b2b03ea08600
+Thumbnail size (px),Méid an mhionsamhlacha (px),,site/modules/Collections/views/configure.php,9527e11e87677fc21b4de17f66fa020f
+width × height,leithead × airde,,site/modules/Collections/views/configure.php,710717474ccd49d97947dfbe9c3f2ce2
+Search,Cuardach,,site/modules/Collections/views/configure.php,13348442cc6a27032d2b4aa28b75a5d3
+Live search (debounced),Cuardach beo (curtha i bhfios),,site/modules/Collections/views/configure.php,4519b3bf9df4730de2bd55d591d4e5ad
+Min search length,Fad cuardaigh íosta,,site/modules/Collections/views/configure.php,473e81551f142c63b57485d4fc838d06
+REST API,REST API,,site/modules/Collections/views/configure.php,aba3d4b49c454e1974970e7b5514b001
+Enable REST API,Cumasaigh REST API,,site/modules/Collections/views/configure.php,9831726a72fcaadd86ae5137237d4414
+API base path,Conair bhunaidh API,,site/modules/Collections/views/configure.php,79c962428aa87de7f6d7e21369d045bb
+Cache,Taisce,,site/modules/Collections/views/configure.php,ab0cf104f39708eabd07b8cb67e149ba
+Enable API cache,Cumasaigh taisce API,,site/modules/Collections/views/configure.php,a2ff472c3cb31cb6c61cce402efc2ee8
+Cache TTL (seconds),Taisce TTL (soicindí),,site/modules/Collections/views/configure.php,e1afbc1bc5e690638d1762390a24c888
+Save Global Settings,Sábháil Socruithe Domhanda,,site/modules/Collections/views/configure.php,1b66b289b1a90b97c03a11da67c819db
+API is %s,Is é API %s,,site/modules/Collections/views/configure.php,8a14e0018e95269fc6f248209e4a9f76
+enabled,cumasaithe,,site/modules/Collections/views/configure.php,a10311459433adf322f2590a4987c423
+disabled,faoi mhíchumas,,site/modules/Collections/views/configure.php,075ae3d2fc31640504f814f60e5ef713
+Base URL:,Bun-URL:,,site/modules/Collections/views/configure.php,32abd6ebf914e7af1740c27c11c5b94c
+Endpoints,Críochphointí,,site/modules/Collections/views/configure.php,b8724da75fb917e992576b17378e66b3
+Method,Modh,,site/modules/Collections/views/configure.php,4c3880bb027f159e801041b1021e88e8
+URL,URL,,site/modules/Collections/views/configure.php,e6b391a8d2c4d45902a23a8b6585703d
+Description,Cur síos,,site/modules/Collections/views/configure.php,b5a7adde1af5c87d7fd797b6245c2a39
+List all collections,Déan liosta de na bailiúcháin go léir,,site/modules/Collections/views/configure.php,2f0490aa5ac7cf22c51f590f12ed568a
+"List items with pagination, search, sort","Liostaigh na míreanna le huimhrigh, cuardaigh, sórtáil",,site/modules/Collections/views/configure.php,2f5ee9eeeca8886d46281d954b4acf30
+Single item by ID,Mír amháin le haitheantas,,site/modules/Collections/views/configure.php,b2c7b6b184ce86c07a98ed31c2d80338
+Field definitions for collection,Sainmhínithe réimse le haghaidh bailiúcháin,,site/modules/Collections/views/configure.php,6349eb5dc2508e418e092926aa8903e3
+Export as CSV or JSON,Easpórtáil mar CSV nó JSON,,site/modules/Collections/views/configure.php,6c4f0069291f86785d7e1d3c22c1a556
+Create new item (JSON body),Cruthaigh mír nua (comhlacht JSON),,site/modules/Collections/views/configure.php,4b253f58a631750bf38443e42041a7f1
+Update item fields,Nuashonraigh réimsí míreanna,,site/modules/Collections/views/configure.php,5e92ec2bb1bbd9487ae4aad0efe0d155
+Delete item,Scrios mír,,site/modules/Collections/views/configure.php,e8cf85cec621489ec026f7e06c67eb4e
+Query Parameters,Paraiméadair Iarratas,,site/modules/Collections/views/configure.php,42bb3c16fb1e5d71306e769416df7852
+Param,Param,,site/modules/Collections/views/configure.php,b7dccc7d9373cd4717256318909fcebe
+Example,Sampla,,site/modules/Collections/views/configure.php,0a52730597fb4ffa01fc117d9e71e3a9
+Search by title and configured search fields,Cuardaigh de réir teidil agus réimsí cuardaigh cumraithe,,site/modules/Collections/views/configure.php,33283b20a2bea47644d57bf2a652bd38
+Page number (default: 1),Uimhir an leathanaigh (réamhshocraithe: 1),,site/modules/Collections/views/configure.php,03548ae5cf066f8fd820e3ed969caf55
+"Items per page (default: 25, max: 500)","Míreanna in aghaidh an leathanaigh (réamhshocraithe: 25, uasmhéid: 500)",,site/modules/Collections/views/configure.php,2d0d14c042d739cca7051c767fd4f008
+Sort field,Réimse sórtála,,site/modules/Collections/views/configure.php,1478e29d4afb33424428ac038636b86f
+Sort direction: asc or desc,Treo sórtála: asc nó desc,,site/modules/Collections/views/configure.php,4bd54f341eec8e0ee49a00cfdf1397d6
+Limit returned fields (comma-separated),Teorainn na réimsí a cuireadh ar ais (scartha le camóg),,site/modules/Collections/views/configure.php,d4ab57eb07a219620615ce47e9484b1e
+Return HTML table instead of JSON,Seol tábla HTML ar ais in ionad JSON,,site/modules/Collections/views/configure.php,70c7e4e22d22e294d603e83dbbd74752
+Examples,Samplaí,,site/modules/Collections/views/configure.php,ff7c0fcd6a31e735a61c001f75426961
+Search products,Cuardaigh táirgí,,site/modules/Collections/views/configure.php,437ac95a91364eb49587af5e146b1745
+Get single product,Faigh táirge amháin,,site/modules/Collections/views/configure.php,ca005383e2d57bdb8154ad26759b4fb1
+Create a page,Cruthaigh leathanach,,site/modules/Collections/views/configure.php,8c8ecfc329eb15dbab69060f429b79b8
+Available Collections,Bailiúcháin ar Fáil,,site/modules/Collections/views/configure.php,36560e908ab29c0254d9811a2ff52d70
+Authentication,Fíordheimhniú,,site/modules/Collections/views/configure.php,c75f7811d70d17dbcd88e9d03752cbed
+recommended,molta,,site/modules/Collections/views/configure.php,0aef2da721f0ab14676f8d6ffb9e7e8c
+or,nó,,site/modules/Collections/views/configure.php,e81c4e4f2b7b93b481e13a8553c2ae1b
+ProcessWire username & password,Ainm úsáideora & pasfhocal ProcessWire,,site/modules/Collections/views/configure.php,69c5f0602ef2143527bcb24278947c1d
+Logged-in PW session cookie,Fianán seisiúin PW logáilte isteach,,site/modules/Collections/views/configure.php,d15ca64710ea56f5358ad19c06c0b81d
+API Keys,Eochracha API,,site/modules/Collections/views/configure.php,b4717f6ab3c2357c13c0c2cd32dfc4ca
+"New key — copy now, shown once:","Eochair nua — cóip anois, taispeánta uair amháin:",,site/modules/Collections/views/configure.php,068c444a3021a50c65d666dce2acb90f
+Name,Ainm,,site/modules/Collections/views/configure.php,49ee3087348e8d44e1feda1917443987
+Prefix,Réimír,,site/modules/Collections/views/configure.php,716de874a0d74f25c0aa8c444c3a7539
+Expires,In éag,,site/modules/Collections/views/configure.php,cfc36842a01da69c484ffdcc6782f437
+Uses,Úsáidí,,site/modules/Collections/views/configure.php,8ae2a5b447f654bd4d75d5ec3c40a4c8
+Delete this API key?,An bhfuil fonn ort an eochair API seo a scriosadh?,,site/modules/Collections/views/configure.php,a95f72a98c46b96c43581e9d2434bce0
+No API keys yet.,Níl aon eochracha API fós.,,site/modules/Collections/views/configure.php,bdb6ef0482ae76da22cf3921db7063c4
+Key name,Ainm eochair,,site/modules/Collections/views/configure.php,4eb32d81c5fc0ca61c07caf07899140e
+Days (0 = never),Laethanta (0 = riamh),,site/modules/Collections/views/configure.php,93a5846fee3132785e1b083356199f8a
+days,laethanta,,site/modules/Collections/views/configure.php,44fdec47036f482b68b748f9d786801b
+Create Key,Cruthaigh Eochair,,site/modules/Collections/views/configure.php,771e662130e73e7ab04334e50f486d16
+Response Format,Formáid Freagartha,,site/modules/Collections/views/configure.php,8b6d2a14b49163c103e465637625a191
+Assign capabilities to roles. Superuser always has full access.,Cumais a shannadh do róil. Bíonn rochtain iomlán ag Superuser i gcónaí.,,site/modules/Collections/views/configure.php,75753f6b438d25f456023ac305ce5871
+"Rules are additive — if a role has a capability globally, it applies to all collections.","Is breisitheach iad rialacha – má tá cumas domhanda ag ról, baineann sé le gach bailiúchán.",,site/modules/Collections/views/configure.php,c8866035a77b95e7e3ef0024cdd1533d
+Global Role Permissions,Ceadanna Róil Domhanda,,site/modules/Collections/views/configure.php,0006cccf272a609e1ee41651aa7f5808
+Role,Ról,,site/modules/Collections/views/configure.php,bbbabdbe1b262f75d99d62880b953be1
+Save Permissions,Sábháil Ceadanna,,site/modules/Collections/views/configure.php,b19c9871756eec3aeb8842a447ab2985
+Export Configuration,Cumraíocht Easpórtála,,site/modules/Collections/views/configure.php,f81fd2af8b72ab635d66d4d7f229bf21
+"Download all collections, global settings, and permissions as a JSON file.","Íoslódáil gach bailiúchán, socrú domhanda agus cead mar chomhad JSON.",,site/modules/Collections/views/configure.php,f36e8dd6527274e549d8ba4903bfbdaa
+Download JSON,Íosluchtaigh ceol JSON,,site/modules/Collections/views/configure.php,11d52919ac14e3903e6a263f4f3b233a
+Import Configuration,Cumraíocht Iompórtála,,site/modules/Collections/views/configure.php,b9ac57b18e69fb1995f0470622588630
+Import collections from a previously exported JSON file. Existing collections with the same key will be replaced.,Iompórtáil bailiúcháin ó chomhad JSON a easpórtáladh roimhe seo. Athsholáthrófar bailiúcháin atá ann cheana agus a bhfuil an eochair chéanna acu.,,site/modules/Collections/views/configure.php,40dec653324526a24983535a42a128e2
+Import,Iompórtáil,,site/modules/Collections/views/configure.php,72d6d7a1885885bb55a565fd1070581a
+Add Collection,Cuir Bailiúchán leis,,site/modules/Collections/views/configure.php,10ac958235fe83036f8e5244454f7c78
+"Lowercase, a-z 0-9 _ only","Cás íochtair, a-z 0-9 _ amháin",,site/modules/Collections/views/configure.php,35f3abe3bd403d0ec01144bfd49a8cb6
+— select template —,- roghnaigh teimpléad -,,site/modules/Collections/views/configure.php,174c6d00c0d0441f29d84fed0a4563a5
+Extra selector,Roghnóir breise,,site/modules/Collections/views/configure.php,cda2f92f7c3e32240732a6b7c01bc2a0
+Icon (FontAwesome),Deilbhín (FontAwesome),,site/modules/Collections/views/configure.php,433863ae77a2b06734a3858e3b07889b
+Show All Icons,Taispeáin Gach Deilbhíní,,site/modules/Collections/views/configure.php,d3899694e364033d1d639933da6d5529
+Group,Grúpa,,site/modules/Collections/views/configure.php,03937134cedab9078be39a77ee3a48a0
+"content, taxonomy, custom, or a new name","ábhar, tacsanomaíocht, saincheaptha, nó ainm nua",,site/modules/Collections/views/configure.php,dd106370c70caad547dae3aa8b0d569b
+Sort by / Direction,Sórtáil de réir / Treo,,site/modules/Collections/views/configure.php,7ad0bc2deff349598046a9de959f0f01
+Per page (0 = global),in aghaidh an leathanaigh (0 = domhanda),,site/modules/Collections/views/configure.php,a4e8cdbcc345912f23cf6149c8001838
+Order (position in sidenav),Ordú (suíomh sa sidenav),,site/modules/Collections/views/configure.php,44f71e0d1b97d316c39689cb228a9b93
+Columns (comma-separated field names),Colúin (ainmneacha páirce deighilte le camóg),,site/modules/Collections/views/configure.php,87a22780f064788c7a48ddf11a6eac45
+Search fields (comma-separated),Réimsí cuardaigh (scartha le camóg),,site/modules/Collections/views/configure.php,50882a61bf3faa0ce37011c1f9713404
+Enable CSV / JSON export for this collection,Cumasaigh easpórtáil CSV/JSON don bhailiúchán seo,,site/modules/Collections/views/configure.php,3c86b2763f52e0d58ee190bfd8958437
+Search in related page titles (e.g. find by category name),Cuardaigh i dteideal leathanaigh ghaolmhara (m.sh. aimsigh de réir ainm na catagóire),,site/modules/Collections/views/configure.php,ee104320c246c3a920e782edb425d2a9
+Cancel,Cealaigh,,site/modules/Collections/views/configure.php,ea4788705e6873b424c65e91c2846b19
+Save Collection,Sábháil Bailiúchán,,site/modules/Collections/views/configure.php,2387698841191211028014e3ec2b4cdb
+Delete Collection,Scrios Bailiúchán,,site/modules/Collections/views/configure.php,8cea924216e9aff75416cfe2a64e362e
+Are you sure you want to delete this collection?,An bhfuil tú cinnte gur mhaith leat an bailiúchán seo a scriosadh?,,site/modules/Collections/views/configure.php,1323cb11be437cccf021d6268fc7c568
+"This only removes the collection configuration, not the actual pages.","Ní bhainfidh sé seo ach cumraíocht an bhailiúcháin, ní na leathanaigh iarbhír.",,site/modules/Collections/views/configure.php,5d80165e3c93298648cc4538bd207e2e
+Publish,Foilsigh,,site/modules/Collections/views/configure.php,110a4b01beabd53b661a47d4b44bd7a8
+Unpublish,Dífhoilsiú,,site/modules/Collections/views/configure.php,181e9a13059454fb2212f1bf10f394ac
+Configure,Cumraigh,,site/modules/Collections/views/configure.php,f1206f9fadc5ce41694f69129aecac26
+Collections,Collections,,site/modules/Collections/views/layout.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Toggle sidebar,Scoránaigh barra taoibh,,site/modules/Collections/views/layout.php,d4bbf74f3ed88af0c2a6c11c357b6e4d
+Content,Ábhar,,site/modules/Collections/views/layout.php,f15c1cae7882448b3fb0404682e17e61
+Taxonomy,Tacsanomaíocht,,site/modules/Collections/views/layout.php,30d10883c017c4fd6751c8982e20dae1
+Custom,Saincheaptha,,site/modules/Collections/views/layout.php,90589c47f06eb971d548591f23c285af
+Configure,Cumraigh,,site/modules/Collections/views/layout.php,f1206f9fadc5ce41694f69129aecac26
+No collections configured yet.,Níl aon bhailiúcháin cumraithe fós.,,site/modules/Collections/views/dashboard.php,bfd367cd9d8e2503ee0e681501165cee
+Configure your first collection,Cumraigh do chéad bhailiúchán,,site/modules/Collections/views/dashboard.php,679863ef54ce52a0c65c6f6b49018dcb
+Total,Iomlán,,site/modules/Collections/views/dashboard.php,96b0141273eabab320119c467cdcaf17
+Configure Collections,Cumraigh Bailiúcháin,,site/modules/Collections/views/dashboard.php,92b07080200bfa7f1eb471cd196a921d
+Export,Easpórtáil,,site/modules/Collections/views/collection-list.php,0095a9fa74d1713e43e370a7d7846224
+Export CSV,Easpórtáil CSV,,site/modules/Collections/views/collection-list.php,c04f1e4841a6af78088d6ccf6f3a8a76
+Export JSON,Easpórtáil JSON,,site/modules/Collections/views/collection-list.php,b7b35e678fac8e3ac6493d09e6bf8ec4
+Add %s,Cuir %s leis,,site/modules/Collections/views/collection-list.php,b95c09fb28e80cc672fd533a62252d70
+Selector:,Roghnóir:,,site/modules/Collections/views/collection-list.php,0b5137d8f6bda4ece6b6d3c3d42e565e
+Sort:,Sórtáil:,,site/modules/Collections/views/collection-list.php,a4c295f303bd3ad4c69344a18dc68420
+Base selector:,Roghnóir bonn:,,site/modules/Collections/views/collection-list.php,cee9477df0588adf7ae0acfe2f725cb4
+Current query:,Iarratas reatha:,,site/modules/Collections/views/collection-list.php,36b2e47c9c0a605eed4bfb25a96b873a
+This selector defines what pages appear in this collection.,Sainmhíníonn an roghnóir seo na leathanaigh atá le feiceáil sa bhailiúchán seo.,,site/modules/Collections/views/collection-list.php,e18a0ffee6f19b584df64ffffac66309
+Showing %1$s-%2$s of %3$s items,Ag taispeáint %1$s-%2$s de mhíreanna %3$s,,site/modules/Collections/views/collection-list.php,071a70d724009b925e31491749b60f63
+No items found,Níor aimsíodh aon rud,,site/modules/Collections/views/collection-list.php,5ece607071fe59ddc4c88dc6abfe2310
+"filtered by ""%s""","scagtha ag ""%s""",,site/modules/Collections/views/collection-list.php,6302a49de99c45ffceb9782c41ca825b
+%s selected,%s roghnaithe,,site/modules/Collections/views/collection-list.php,9033a3ec0d5878d8181cfafca376b978
+Publish,Foilsigh,,site/modules/Collections/views/collection-list.php,110a4b01beabd53b661a47d4b44bd7a8
+Unpublish,Dífhoilsiú,,site/modules/Collections/views/collection-list.php,181e9a13059454fb2212f1bf10f394ac
+Delete,Scrios,,site/modules/Collections/views/collection-list.php,f2a6c498fb90ee345d997f888fce3b18
+Cancel,Cealaigh,,site/modules/Collections/views/collection-list.php,ea4788705e6873b424c65e91c2846b19
+Add Collection,Cuir Bailiúchán leis,,site/modules/Collections/views/collection-list.php,10ac958235fe83036f8e5244454f7c78
+Edit: %s,Eagar: %s,,site/modules/Collections/views/collection-list.php,f7931413dee107ddf5289c8886baf7ec
+Delete %d pages? This cannot be undone.,An bhfuil fonn ort leathanaigh %d a scriosadh? Ní féidir é seo a chealú.,,site/modules/Collections/views/collection-list.php,130c6af65d9c5d95f3010f180598e88e
+Delete this page? This cannot be undone.,An bhfuil fonn ort an leathanach seo a scriosadh? Ní féidir é seo a chealú.,,site/modules/Collections/views/collection-list.php,c3b416d5f1e38c21d3b855dc9e608c9b
+Published,Foilsithe,,site/modules/Collections/views/collection-list.php,9b9d8a976b42e0bd66381797644943d5
+Unpublished,Neamhfhoilsithe,,site/modules/Collections/views/collection-list.php,0774e163cd7df482edd2abd498189f8b
+Pub,teach tábhairne,,site/modules/Collections/views/collection-list.php,a29bdd003ef6c0c34279807341f450f2
+Unpub,Unpub,,site/modules/Collections/views/collection-list.php,f40271af9378ba3b92b006eb2f2441bb
+Show All Icons,Taispeáin Gach Deilbhíní,,site/modules/Collections/views/collection-list.php,d3899694e364033d1d639933da6d5529
+Hide Icons,Folaigh Deilbhíní,,site/modules/Collections/views/collection-list.php,9bd9ce3b057ac342ab01360df2361d9d
+All %s,Gach %s,,site/modules/Collections/views/partials/toolbar.php,84d1595b1584d106bf0310b6905e7c3c
+Apply,Cuir iarratas isteach,,site/modules/Collections/views/partials/toolbar.php,9639e32cab248434a17ab32237cb3b71
+Clear,Glan,,site/modules/Collections/views/partials/toolbar.php,dc30bc0c7914db5918da4263fce93ad2
+First page,An chéad leathanach,,site/modules/Collections/views/partials/pagination.php,2e01b86887d023c873d0ebb2811e3bd8
+Previous page,An leathanach roimhe seo,,site/modules/Collections/views/partials/pagination.php,16ded2dc32322d80ce2362a47f4d7ef4
+Next page,An chéad leathanach eile,,site/modules/Collections/views/partials/pagination.php,374bea6cf8bd1e8fd64570b629cc6562
+Last page,leathanach deiridh,,site/modules/Collections/views/partials/pagination.php,339aaf6f96935365023a6e4c95c0ba95
+Select all,Roghnaigh go léir,,site/modules/Collections/src/CollectionRenderer.php,4c41e0bd957698b58100a5c687d757d9
+Actions,Gníomhartha,,site/modules/Collections/src/CollectionRenderer.php,06df33001c1d7187fdd81ea1f5b277aa
+No items found,Níor aimsíodh aon rud,,site/modules/Collections/src/CollectionRenderer.php,5ece607071fe59ddc4c88dc6abfe2310
+Unpub,Unpub,,site/modules/Collections/src/CollectionRenderer.php,f40271af9378ba3b92b006eb2f2441bb
+Pub,teach tábhairne,,site/modules/Collections/src/CollectionRenderer.php,a29bdd003ef6c0c34279807341f450f2
+Edit,Cuir in eagar,,site/modules/Collections/src/CollectionRenderer.php,7dce122004969d56ae2e0245cb754d35
+View,Amharc,,site/modules/Collections/src/CollectionRenderer.php,4351cfebe4b61d8aa5efa1d020710005
+Trash,Bruscar,,site/modules/Collections/src/CollectionRenderer.php,a7e253cd8dd95da3e20daf45519a8dc2
+%d items,Míreanna %d,,site/modules/Collections/src/CollectionRenderer.php,cf1e3d72714f82f85aa7f326af340459
+Unpublished,Neamhfhoilsithe,,site/modules/Collections/src/CollectionRenderer.php,0774e163cd7df482edd2abd498189f8b
+Hidden,i bhfolach,,site/modules/Collections/src/CollectionRenderer.php,7acdf85c69cc3c5305456a293524386e
+Published,Foilsithe,,site/modules/Collections/src/CollectionRenderer.php,9b9d8a976b42e0bd66381797644943d5
+Collections: view pages,Bailiúcháin: féach ar leathanaigh,,site/modules/Collections/install/permissions.php,d9589a70d3500a8ed2116321b3416a0b
+Collections: create pages,Bailiúcháin: cruthaigh leathanaigh,,site/modules/Collections/install/permissions.php,e84fce1236bf65691c4dec00ae0948b9
+Collections: edit pages,Bailiúcháin: leathanaigh a chur in eagar,,site/modules/Collections/install/permissions.php,38798d540b706498cb3d592641960d8e
+Collections: delete pages,Bailiúcháin: scrios leathanaigh,,site/modules/Collections/install/permissions.php,825747a19e20f5a7e780b920bdeba529
+Collections: configure module,Bailiúcháin: modúl a chumrú,,site/modules/Collections/install/permissions.php,b10d0ba5aee31b32896660c19316c559
+Collections: export data,Bailiúcháin: sonraí easpórtála,,site/modules/Collections/install/permissions.php,a72c3416f2073ca3927fa41a1663b18b

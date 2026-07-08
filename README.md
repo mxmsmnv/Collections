@@ -181,6 +181,16 @@ Full API reference and code examples for cURL, JavaScript, PHP, Python, Next.js,
 
 ---
 
+## Admin Interface Language
+
+The Collections admin interface uses ProcessWire's standard module translation mechanism (`__('...')` / `$this->_(...)` plus `languages/*.csv`).
+
+Bundled admin translations are included in `languages/*.csv` for major European languages, including Albanian, Bosnian, Bulgarian, Croatian, Czech, Danish, Dutch, Estonian, Finnish, French, German, Greek, Hungarian, Icelandic, Irish, Italian, Latvian, Lithuanian, Macedonian, Maltese, Norwegian, Polish, Portuguese, Romanian, Russian, Serbian, Slovak, Slovenian, Spanish, Swedish, Turkish, and Ukrainian.
+
+To install them: **Modules → Collections / ProcessCollections → install translations** (available when ProcessWire's core Language Support module is installed and at least one non-default language exists), choose the CSV for the target language, and submit. The Collections admin UI then follows the current ProcessWire admin language.
+
+---
+
 ## Permissions
 
 | Permission slug | Description |

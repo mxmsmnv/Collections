@@ -10,20 +10,20 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.5
+ * @version 1.9.6
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.5';
+    public const VERSION = '1.9.6';
 
     private ?CollectionConfig $collectionConfig = null;
 
     public static function getModuleInfo(): array
     {
         return [
-            'title'    => 'Collections',
-            'version'  => 195,
-            'summary'  => 'Configurable page collections with table UI and REST API',
+            'title'    => __('Collections', __FILE__),
+            'version'  => 196,
+            'summary'  => __('Configurable page collections with table UI and REST API', __FILE__),
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
             'requires' => ['ProcessWire>=3.0.244', 'PHP>=8.2'],
@@ -237,12 +237,12 @@ class Collections extends WireData implements Module
             $adminUrl = $this->wire('config')->urls->admin;
             $url      = $adminUrl . "collections/?col={$col->key}";
             $links[] = "<a href='{$url}' class='uk-button uk-button-default uk-button-small'>"
-                . "<i class='fa {$col->icon}'></i> View in {$col->label}</a>";
+                . "<i class='fa {$col->icon}'></i> " . sprintf($this->_('View in %s'), $col->label) . '</a>';
         }
 
         if ($links) {
             $field = $this->wire('modules')->get('InputfieldMarkup');
-            $field->label = 'Collections';
+            $field->label = $this->_('Collections');
             $field->attr('id+name', 'collections_link');
             $field->value = implode(' ', $links);
             $form->insertBefore($field, $form->children->first());
@@ -265,8 +265,8 @@ class Collections extends WireData implements Module
 
             $url       = $this->wire('config')->urls->admin . "collections/?col={$col->key}";
             $actions[] = [
-                'cn'   => 'Collection',
-                'name' => "Open in {$col->label}",
+                'cn'   => $this->_('Collection'),
+                'name' => sprintf($this->_('Open in %s'), $col->label),
                 'url'  => $url,
             ];
         }
@@ -290,7 +290,7 @@ class Collections extends WireData implements Module
             $existing->process = $this->wire('modules')->get('ProcessCollections');
             $existing->removeStatus(Page::statusHidden);
             $existing->save();
-            $this->message('Collections admin page updated.');
+            $this->message($this->_('Collections admin page updated.'));
         } else {
             $collectionsPage = new Page();
             $collectionsPage->template = 'admin';
@@ -299,7 +299,7 @@ class Collections extends WireData implements Module
             $collectionsPage->title    = 'Collections';
             $collectionsPage->process  = $this->wire('modules')->get('ProcessCollections');
             $collectionsPage->save();
-            $this->message('Collections admin page created at: ' . $collectionsPage->url);
+            $this->message(sprintf($this->_('Collections admin page created at: %s'), $collectionsPage->url));
         }
 
         // Enable URL segments on admin template so /collections/key/ works
@@ -313,7 +313,7 @@ class Collections extends WireData implements Module
         $this->getConfig()->saveGlobal([]);
         $this->getConfig()->savePermissionsMatrix([]);
 
-        $this->message('Collections installed. Go to Admin > Collections to get started.');
+        $this->message($this->_('Collections installed. Go to Admin > Collections to get started.'));
     }
 
     public function ___uninstall(): void
@@ -326,7 +326,7 @@ class Collections extends WireData implements Module
         // Drop custom tables
         $this->getConfig()->dropTables();
 
-        $this->message('Collections uninstalled. Custom tables dropped.');
+        $this->message($this->_('Collections uninstalled. Custom tables dropped.'));
     }
 
     public function ___upgrade($fromVersion, $toVersion): void
@@ -339,7 +339,7 @@ class Collections extends WireData implements Module
             $existing->process = $this->wire('modules')->get('ProcessCollections');
             $existing->removeStatus(Page::statusHidden);
             $existing->save();
-            $this->message('Collections admin page process updated.');
+            $this->message($this->_('Collections admin page process updated.'));
         } else {
             // Page missing - recreate
             $p = new Page();
@@ -349,7 +349,7 @@ class Collections extends WireData implements Module
             $p->title    = 'Collections';
             $p->process  = $this->wire('modules')->get('ProcessCollections');
             $p->save();
-            $this->message('Collections admin page recreated.');
+            $this->message($this->_('Collections admin page recreated.'));
         }
     }
 

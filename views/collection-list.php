@@ -14,6 +14,7 @@ namespace ProcessWire;
 $canCreate = $perms->can(CollectionPermissions::CAP_CREATE, $collection);
 $canExport = $perms->can(CollectionPermissions::CAP_EXPORT, $collection);
 $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
+$t         = static fn(string $text): string => __($text, __FILE__);
 ?>
 
 <div class="collections-page-header">
@@ -25,15 +26,15 @@ $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
         <?php if ($canExport && $collection->exportEnabled): ?>
         <div class="uk-inline">
             <button class="ui-button ui-state-default ui-priority-secondary" type="button">
-                <span class="ui-button-text"><i class="fa fa-download"></i> Export</span>
+                <span class="ui-button-text"><i class="fa fa-download"></i> <?= $t('Export') ?></span>
             </button>
             <div uk-dropdown="mode: click; pos: bottom-right">
                 <ul class="uk-nav uk-dropdown-nav">
                     <li><a href="?col=<?= urlencode($collection->key) ?>&export=csv&q=<?= urlencode($params->search) ?>" class="collections-export" data-format="csv">
-                        <i class="fa fa-file-text-o"></i> Export CSV
+                        <i class="fa fa-file-text-o"></i> <?= $t('Export CSV') ?>
                     </a></li>
                     <li><a href="?col=<?= urlencode($collection->key) ?>&export=json&q=<?= urlencode($params->search) ?>" class="collections-export" data-format="json">
-                        <i class="fa fa-file-code-o"></i> Export JSON
+                        <i class="fa fa-file-code-o"></i> <?= $t('Export JSON') ?>
                     </a></li>
                 </ul>
             </div>
@@ -46,7 +47,7 @@ $canEdit   = $perms->can(CollectionPermissions::CAP_EDIT, $collection);
         if ($addTemplate && $addTemplate->id) $addUrl .= '?template_id=' . $addTemplate->id;
         ?>
         <a href="<?= $addUrl ?>" class="ui-button ui-state-default">
-            <span class="ui-button-text"><i class="fa fa-plus"></i> Add <?= $wire->sanitizer->entities($collection->label) ?></span>
+            <span class="ui-button-text"><i class="fa fa-plus"></i> <?= sprintf($t('Add %s'), $wire->sanitizer->entities($collection->label)) ?></span>
         </a>
         <?php endif; ?>
     </div>
@@ -66,17 +67,17 @@ $effectiveSortDir = ($params->sortBy && $wire->fields->get($params->sortBy)) ? $
 <details class="collections-selector-note">
     <summary>
         <i class="fa fa-info-circle"></i>
-        Selector: <code><?= htmlspecialchars($baseSelector) ?></code>
+        <?= $t('Selector:') ?> <code><?= htmlspecialchars($baseSelector) ?></code>
         &nbsp;·&nbsp;
-        Sort: <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code>
+        <?= $t('Sort:') ?> <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code>
     </summary>
     <div class="selector-note-body">
-        <p><strong>Base selector:</strong> <code><?= htmlspecialchars($baseSelector) ?></code></p>
+        <p><strong><?= $t('Base selector:') ?></strong> <code><?= htmlspecialchars($baseSelector) ?></code></p>
         <?php if ($params->search || !empty(array_filter($params->filters ?? []))): ?>
-        <p><strong>Current query:</strong> <code><?= htmlspecialchars($displaySelector) ?></code></p>
+        <p><strong><?= $t('Current query:') ?></strong> <code><?= htmlspecialchars($displaySelector) ?></code></p>
         <?php endif; ?>
-        <p><strong>Sort:</strong> <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code></p>
-        <p class="selector-note-hint">This selector defines what pages appear in this collection.</p>
+        <p><strong><?= $t('Sort:') ?></strong> <code><?= htmlspecialchars($effectiveSortBy) ?> <?= strtoupper(htmlspecialchars($effectiveSortDir)) ?></code></p>
+        <p class="selector-note-hint"><?= $t('This selector defines what pages appear in this collection.') ?></p>
     </div>
 </details>
 
@@ -89,32 +90,36 @@ $effectiveSortDir = ($params->sortBy && $wire->fields->get($params->sortBy)) ? $
 
 <div class="collections-statusbar">
     <?php if ($result->total > 0): ?>
-    Showing <?= number_format(($params->page - 1) * $result->perPage + 1) ?>–<?= number_format(min($params->page * $result->perPage, $result->total)) ?>
-    of <?= number_format($result->total) ?> items
+    <?= sprintf(
+        $t('Showing %1$s-%2$s of %3$s items'),
+        number_format(($params->page - 1) * $result->perPage + 1),
+        number_format(min($params->page * $result->perPage, $result->total)),
+        number_format($result->total)
+    ) ?>
     <?php else: ?>
-    No items found
+    <?= $t('No items found') ?>
     <?php endif; ?>
     <?php if ($params->search): ?>
-    — filtered by "<strong><?= $wire->sanitizer->entities($params->search) ?></strong>"
+    <?= sprintf($t('filtered by "%s"'), '<strong>' . $wire->sanitizer->entities($params->search) . '</strong>') ?>
     <?php endif; ?>
 </div>
 
 <?php if ($canEdit): ?>
 <div class="collections-bulk-bar" id="collections-bulk-bar" style="display:none">
-    <span class="bulk-count"><span id="bulk-count-num">0</span> selected</span>
+    <span class="bulk-count"><?= sprintf($t('%s selected'), '<span id="bulk-count-num">0</span>') ?></span>
     <button class="ui-button ui-state-default" data-bulk-action="publish" type="button">
-        <span class="ui-button-text"><i class="fa fa-eye"></i> Publish</span>
+        <span class="ui-button-text"><i class="fa fa-eye"></i> <?= $t('Publish') ?></span>
     </button>
     <button class="ui-button ui-state-default ui-priority-secondary" data-bulk-action="unpublish" type="button">
-        <span class="ui-button-text"><i class="fa fa-eye-slash"></i> Unpublish</span>
+        <span class="ui-button-text"><i class="fa fa-eye-slash"></i> <?= $t('Unpublish') ?></span>
     </button>
     <?php if ($perms->can(CollectionPermissions::CAP_DELETE, $collection)): ?>
     <button class="ui-button ui-state-default" data-bulk-action="delete" type="button" style="background:#dc3545;color:#fff;border-color:#dc3545;">
-        <span class="ui-button-text"><i class="fa fa-trash"></i> Delete</span>
+        <span class="ui-button-text"><i class="fa fa-trash"></i> <?= $t('Delete') ?></span>
     </button>
     <?php endif; ?>
     <button class="ui-button ui-state-default ui-priority-secondary" id="collections-bulk-cancel" type="button">
-        <span class="ui-button-text">Cancel</span>
+        <span class="ui-button-text"><?= $t('Cancel') ?></span>
     </button>
 </div>
 <?php endif; ?>
@@ -139,6 +144,17 @@ window.CollectionsConfig = {
     apiBase: <?= json_encode($globalConfig['api_base'] ?? '/api/') ?>,
     csrfName: <?= json_encode($csrfName) ?>,
     csrfValue: <?= json_encode($csrfValue) ?>,
+    i18n: {
+        addCollection: <?= json_encode($t('Add Collection')) ?>,
+        editCollection: <?= json_encode($t('Edit: %s')) ?>,
+        deletePagesConfirm: <?= json_encode($t('Delete %d pages? This cannot be undone.')) ?>,
+        deletePageConfirm: <?= json_encode($t('Delete this page? This cannot be undone.')) ?>,
+        published: <?= json_encode($t('Published')) ?>,
+        unpublished: <?= json_encode($t('Unpublished')) ?>,
+        publishShort: <?= json_encode($t('Pub')) ?>,
+        unpublishShort: <?= json_encode($t('Unpub')) ?>,
+        showAllIcons: <?= json_encode($t('Show All Icons')) ?>,
+        hideIcons: <?= json_encode($t('Hide Icons')) ?>,
+    },
 };
-</script>
 </script>

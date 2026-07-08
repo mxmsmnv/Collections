@@ -6,6 +6,7 @@ namespace ProcessWire;
 /** @var Collection $collection */
 /** @var QueryParams $params */
 /** @var array $filterOptions */
+$t = static fn(string $text): string => __($text, __FILE__);
 ?>
 <div class="collections-toolbar">
     <div class="toolbar-search">
@@ -41,7 +42,7 @@ namespace ProcessWire;
             $pwField = $wire->fields->get($field);
             $fieldLabel = ($pwField && $pwField->label) ? $pwField->label : ucfirst(str_replace('_', ' ', $field));
             ?>
-            <option value="">All <?= $wire->sanitizer->entities($fieldLabel) ?></option>
+            <option value=""><?= sprintf($t('All %s'), $wire->sanitizer->entities($fieldLabel)) ?></option>
             <?php foreach ($options as $val => $label): ?>
             <option value="<?= $wire->sanitizer->entities($val) ?>"
                 <?= isset($params->filters[$field]) && $params->filters[$field] == $val ? 'selected' : '' ?>>
@@ -56,12 +57,12 @@ namespace ProcessWire;
     <button type="button" id="collections-filter-apply"
             class="ui-button ui-state-default"
             style="display:none">
-        <span class="ui-button-text">Apply</span>
+        <span class="ui-button-text"><?= $t('Apply') ?></span>
     </button>
 
     <div class="toolbar-clear" <?= (!$params->search && empty(array_filter($params->filters))) ? 'style="display:none"' : '' ?>>
         <a href="?<?= !empty($_GET['col']) ? 'col=' . htmlspecialchars($_GET['col']) : '' ?>" class="ui-button ui-state-default ui-priority-secondary">
-            <i class="fa fa-times"></i> Clear
+            <i class="fa fa-times"></i> <?= $t('Clear') ?>
         </a>
     </div>
 </div>

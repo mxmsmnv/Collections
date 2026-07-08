@@ -6,6 +6,8 @@ namespace ProcessWire;
 /** @var Collection[] $allCollections */
 /** @var string $adminUrl */
 
+$t = static fn(string $text): string => __($text, __FILE__);
+
 // Group by group field
 $groups = [];
 foreach ($allCollections as $col) {
@@ -27,8 +29,8 @@ $groups = $sorted;
 
 <?php if (empty($allCollections)): ?>
 <div class="uk-alert uk-alert-warning">
-    <p>No collections configured yet.
-       <a href="<?= $adminUrl ?>collections/?configure=1">Configure your first collection</a>.
+    <p><?= $t('No collections configured yet.') ?>
+       <a href="<?= $adminUrl ?>collections/?configure=1"><?= $t('Configure your first collection') ?></a>.
     </p>
 </div>
 <?php else: ?>
@@ -47,7 +49,7 @@ $groups = $sorted;
         <a href="<?= $adminUrl ?>collections/?col=<?= $col->key ?>" class="dashboard-card">
             <div class="dashboard-card-label"><?= strtoupper($wire->sanitizer->entities($col->label)) ?></div>
             <div class="dashboard-card-count"><?= number_format($count) ?></div>
-            <div class="dashboard-card-sub">Total</div>
+            <div class="dashboard-card-sub"><?= $t('Total') ?></div>
         </a>
         <?php endforeach; ?>
     </div>
@@ -59,7 +61,7 @@ $groups = $sorted;
 <?php if ($wire->user->hasPermission('collections-configure') || $wire->user->isSuperuser()): ?>
 <div class="dashboard-footer">
     <a href="<?= $adminUrl ?>collections/?configure=1" class="ui-button ui-state-default ui-priority-secondary">
-        <span class="ui-button-text"><i class="fa fa-cog"></i> Configure Collections</span>
+        <span class="ui-button-text"><i class="fa fa-cog"></i> <?= $t('Configure Collections') ?></span>
     </a>
 </div>
 <?php endif; ?>

@@ -5,6 +5,8 @@
     'use strict';
 
     const cfg = window.CollectionsConfig || {};
+    const i18n = cfg.i18n || {};
+    const t = (key, fallback) => i18n[key] || fallback || key;
 
     // ── Sidebar toggle ────────────────────────────────────────────────────────
 
@@ -333,7 +335,8 @@
         if (!ids.length) return;
 
         if (action === 'delete' && cfg.confirmBatchDelete) {
-            if (!confirm(`Delete ${ids.length} pages? This cannot be undone.`)) return;
+            const msg = t('deletePagesConfirm', 'Delete %d pages? This cannot be undone.').replace('%d', ids.length);
+            if (!confirm(msg)) return;
         }
 
         submitBulk(action, ids);
@@ -420,7 +423,7 @@
                 btn.innerHTML = newStatus === 'published'
                     ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#555" style="width:14px;height:14px;display:inline-block;vertical-align:middle;flex-shrink:0"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/></svg>'
                     : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#aaa" style="width:14px;height:14px;display:inline-block;vertical-align:middle;flex-shrink:0"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z" clip-rule="evenodd"/></svg>';
-                btn.title = newStatus === 'published' ? 'Unpub' : 'Pub';
+                btn.title = newStatus === 'published' ? t('unpublishShort', 'Unpub') : t('publishShort', 'Pub');
                 // Swap toggle classes
                 btn.classList.toggle('toggle-published',  newStatus === 'published');
                 btn.classList.toggle('toggle-unpublished', newStatus === 'unpublished');
@@ -431,7 +434,7 @@
                     const dot = row.querySelector('.collections-dot');
                     if (dot) {
                         dot.className = 'collections-dot dot-' + newStatus;
-                        dot.title = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                        dot.title = newStatus === 'published' ? t('published', 'Published') : t('unpublished', 'Unpublished');
                     }
                 }
             }
@@ -471,7 +474,7 @@
         if (expCheck) expCheck.checked = data.exportEnabled !== false;
 
         const title = document.getElementById('modal-collection-title');
-        if (title) title.textContent = `Edit: ${data.label || data.key}`;
+        if (title) title.textContent = t('editCollection', 'Edit: %s').replace('%s', data.label || data.key);
 
         UIkit.modal(modal).show();
     });
@@ -498,7 +501,7 @@
         if (expCheck) expCheck.checked = true;
 
         const title = document.getElementById('modal-collection-title');
-        if (title) title.textContent = 'Add Collection';
+        if (title) title.textContent = t('addCollection', 'Add Collection');
 
         UIkit.modal(modal).show();
     });
@@ -533,7 +536,7 @@
         const btn = e.target.closest('.collections-delete');
         if (!btn) return;
 
-        if (!confirm('Delete this page? This cannot be undone.')) return;
+        if (!confirm(t('deletePageConfirm', 'Delete this page? This cannot be undone.'))) return;
 
         const id  = btn.dataset.id;
         const row = btn.closest('tr');
@@ -642,7 +645,7 @@
 
             var show = picker.style.display === 'none';
             picker.style.display = show ? 'block' : 'none';
-            toggle.textContent = show ? 'Hide Icons' : 'Show All Icons';
+            toggle.textContent = show ? t('hideIcons', 'Hide Icons') : t('showAllIcons', 'Show All Icons');
             return;
         }
 
@@ -656,7 +659,7 @@
             if (input) input.value = pick.dataset.icon;
             if (preview) preview.innerHTML = '<i class="fa ' + pick.dataset.icon + '"></i>';
             if (picker) picker.style.display = 'none';
-            if (toggle) toggle.textContent = 'Show All Icons';
+            if (toggle) toggle.textContent = t('showAllIcons', 'Show All Icons');
         }
     });
 

@@ -17,9 +17,9 @@ class ProcessCollections extends Process
     public static function getModuleInfo(): array
     {
         return [
-            'title'       => 'ProcessCollections',
-            'version'     => 195,
-            'summary'     => 'Admin interface for Collections module',
+            'title'       => __('ProcessCollections', __FILE__),
+            'version'     => 196,
+            'summary'     => __('Admin interface for Collections module', __FILE__),
             'author'      => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
             'requires'    => ['Collections'],
@@ -113,7 +113,7 @@ class ProcessCollections extends Process
         $collection = $this->config->getCollectionByKey($key);
 
         if (!$collection) {
-            throw new Wire404Exception("Collection not found: {$key}");
+            throw new Wire404Exception(sprintf($this->_('Collection not found: %s'), $key));
         }
 
         $this->perms->can(CollectionPermissions::CAP_VIEW, $collection)
@@ -170,13 +170,20 @@ class ProcessCollections extends Process
             if ($result->total > 0) {
                 $from = ($params->page - 1) * $result->perPage + 1;
                 $to   = min($params->page * $result->perPage, $result->total);
-                $statusText = 'Showing ' . number_format($from) . '–' . number_format($to)
-                    . ' of ' . number_format($result->total) . ' items';
+                $statusText = sprintf(
+                    $this->_('Showing %1$s-%2$s of %3$s items'),
+                    number_format($from),
+                    number_format($to),
+                    number_format($result->total)
+                );
             } else {
-                $statusText = 'No items found';
+                $statusText = $this->_('No items found');
             }
             if ($params->search) {
-                $statusText .= ' — filtered by "' . $this->wire('sanitizer')->entities($params->search) . '"';
+                $statusText .= ' ' . sprintf(
+                    $this->_('filtered by "%s"'),
+                    $this->wire('sanitizer')->entities($params->search)
+                );
             }
 
             return json_encode([
@@ -196,7 +203,7 @@ class ProcessCollections extends Process
         // Set page title/breadcrumb
         $this->wire('processHeadline', $collection->label);
         $adminUrl = $this->wire('config')->urls->admin;
-        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', 'Collections'));
+        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', $this->_('Collections')));
         $this->fuel->set('title', $collection->label);
 
         // Render layout
@@ -251,7 +258,7 @@ class ProcessCollections extends Process
         $this->wire('log')->save('collections', "CSRF debug: name={$tokenName} expected={$expected} received={$received}");
 
         $this->wire('session')->CSRF->validate()
-            || throw new WireCSRFException('Invalid CSRF token');
+            || throw new WireCSRFException($this->_('Invalid CSRF token'));
 
         $action = $this->wire('sanitizer')->name($this->wire('input')->post('bulk_action'));
         $ids    = array_map('intval', (array) $this->wire('input')->post('ids'));
@@ -259,11 +266,11 @@ class ProcessCollections extends Process
         $cap = match($action) {
             'publish', 'unpublish' => CollectionPermissions::CAP_EDIT,
             'delete'               => CollectionPermissions::CAP_DELETE,
-            default                => throw new WireException("Unknown bulk action: {$action}"),
+            default                => throw new WireException(sprintf($this->_('Unknown bulk action: %s'), $action)),
         };
 
         $this->perms->can($cap, $collection)
-            || throw new WirePermissionException("Not allowed: {$action}");
+            || throw new WirePermissionException(sprintf($this->_('Not allowed: %s'), $action));
 
         $results = ['success' => 0, 'errors' => []];
 
@@ -284,12 +291,12 @@ class ProcessCollections extends Process
                 };
                 $results['success']++;
             } catch (Throwable $e) {
-                $results['errors'][] = "Page {$page->id}: {$e->getMessage()}";
+                $results['errors'][] = sprintf($this->_('Page %1$d: %2$s'), $page->id, $e->getMessage());
             }
         }
 
         if ($results['success']) {
-            $this->message("{$results['success']} pages updated.");
+            $this->message(sprintf($this->_('%d pages updated.'), $results['success']));
         }
         if ($results['errors']) {
             foreach ($results['errors'] as $err) $this->error($err);
@@ -301,9 +308,9 @@ class ProcessCollections extends Process
 
     private function renderDashboard(): string
     {
-        $this->wire('processHeadline', 'Collections');
-        $this->fuel->set('title', 'Collections');
-        $this->wire('breadcrumbs')->add(new Breadcrumb($this->wire('config')->urls->admin . 'collections/', 'Collections'));
+        $this->wire('processHeadline', $this->_('Collections'));
+        $this->fuel->set('title', $this->_('Collections'));
+        $this->wire('breadcrumbs')->add(new Breadcrumb($this->wire('config')->urls->admin . 'collections/', $this->_('Collections')));
 
         $allCollections = $this->perms->filterVisible($this->config->getCollections());
         usort($allCollections, fn($a, $b) => $a->order <=> $b->order);
@@ -330,7 +337,7 @@ class ProcessCollections extends Process
         // Handle POST actions
         if ($this->wire('input')->requestMethod('POST')) {
             if (!$this->wire('session')->CSRF->validate()) {
-                $this->error('Invalid CSRF token');
+                $this->error($this->_('Invalid CSRF token'));
             } else {
                 $configureUrl = $this->wire('config')->urls->admin . 'collections/?configure=1';
                 if ($this->wire('input')->get('save_collection')) {
@@ -363,9 +370,9 @@ class ProcessCollections extends Process
 
         // Render configure UI
         $adminUrl = $this->wire('config')->urls->admin;
-        $this->wire('processHeadline', 'Configure Collections');
-        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', 'Collections'));
-        $this->fuel->set('title', 'Configure Collections');
+        $this->wire('processHeadline', $this->_('Configure Collections'));
+        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', $this->_('Collections')));
+        $this->fuel->set('title', $this->_('Configure Collections'));
 
         // Debug panel
         $this->addDebugInfo();
@@ -422,12 +429,12 @@ class ProcessCollections extends Process
         $action   = $post->text('action');
 
         if (!$pageId || !in_array($action, ['publish', 'unpublish'])) {
-            return json_encode(['ok' => false, 'error' => 'Invalid request']);
+            return json_encode(['ok' => false, 'error' => $this->_('Invalid request')]);
         }
 
         $page = $this->wire('pages')->get($pageId);
         if (!$page->id) {
-            return json_encode(['ok' => false, 'error' => 'Page not found']);
+            return json_encode(['ok' => false, 'error' => $this->_('Page not found')]);
         }
 
         $page->of(false);
@@ -449,7 +456,7 @@ class ProcessCollections extends Process
         $san  = $this->wire('sanitizer');
         $key = $san->pageName($post->text('key'));
         if (!$key) {
-            $this->error('Collection key is required');
+            $this->error($this->_('Collection key is required'));
             return;
         }
 
@@ -459,7 +466,7 @@ class ProcessCollections extends Process
                          'import_config', 'create_api_key', 'delete_api_key',
                          'collections', 'schema', 'bulk'];
         if (in_array($key, $reservedKeys, true)) {
-            $this->error("Key '{$key}' is reserved and cannot be used. Choose a different key.");
+            $this->error(sprintf($this->_("Key '%s' is reserved and cannot be used. Choose a different key."), $key));
             return;
         }
 
@@ -490,7 +497,7 @@ class ProcessCollections extends Process
         ]);
 
         $this->config->saveCollection($collection);
-        $this->message("Collection '{$key}' saved.");
+        $this->message(sprintf($this->_("Collection '%s' saved."), $key));
         $this->wire('log')->save('collections', 'handleSaveCollection() saved key=' . $key);
     }
 
@@ -516,7 +523,7 @@ class ProcessCollections extends Process
         $current['cache_ttl']         = max(60, min(86400, (int) $post->text('cache_ttl')));
 
         $this->config->saveGlobal($current);
-        $this->message('Global settings saved.');
+        $this->message($this->_('Global settings saved.'));
     }
 
     private function handleSavePermissions(): void
@@ -538,7 +545,7 @@ class ProcessCollections extends Process
         }
 
         $this->config->savePermissionsMatrix($matrix);
-        $this->message('Permissions saved.');
+        $this->message($this->_('Permissions saved.'));
     }
 
     private function handleDeleteCollection(): void
@@ -549,7 +556,7 @@ class ProcessCollections extends Process
 
         // Note: CSRF already validated in renderConfigure() before this method is called.
         $this->config->deleteCollection($key);
-        $this->message("Collection '{$key}' deleted.");
+        $this->message(sprintf($this->_("Collection '%s' deleted."), $key));
         $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1');
     }
 
@@ -569,11 +576,11 @@ class ProcessCollections extends Process
     private function handleImportConfig(): void
     {
         $this->wire('session')->CSRF->validate()
-            || throw new WireCSRFException('Invalid CSRF token');
+            || throw new WireCSRFException($this->_('Invalid CSRF token'));
 
         $file = $_FILES['config_file'] ?? null;
         if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-            $this->error('Upload failed.');
+            $this->error($this->_('Upload failed.'));
             return;
         }
 
@@ -581,7 +588,7 @@ class ProcessCollections extends Process
         $data = json_decode($json, true);
 
         if (!is_array($data)) {
-            $this->error('Invalid JSON file.');
+            $this->error($this->_('Invalid JSON file.'));
             return;
         }
 
@@ -589,7 +596,7 @@ class ProcessCollections extends Process
         if ($errors) {
             foreach ($errors as $err) $this->error($err);
         } else {
-            $this->message('Configuration imported successfully.');
+            $this->message($this->_('Configuration imported successfully.'));
         }
     }
 
@@ -624,7 +631,7 @@ class ProcessCollections extends Process
         $days = (int) $post->text('key_expiration');
 
         if (!$name) {
-            $this->error('API key name is required.');
+            $this->error($this->_('API key name is required.'));
             return;
         }
 
@@ -632,9 +639,9 @@ class ProcessCollections extends Process
         if ($rawKey) {
             // Store in session to show once
             $this->wire('session')->set('collections_new_api_key', $rawKey);
-            $this->message("API key '{$name}' created.");
+            $this->message(sprintf($this->_("API key '%s' created."), $name));
         } else {
-            $this->error('Failed to create API key.');
+            $this->error($this->_('Failed to create API key.'));
         }
         $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1#tab-api');
     }
@@ -644,7 +651,7 @@ class ProcessCollections extends Process
         $id = (int) $this->wire('input')->post->text('key_id');
         if ($id > 0) {
             $this->config->deleteApiKey($id);
-            $this->message('API key deleted.');
+            $this->message($this->_('API key deleted.'));
         }
         $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1#tab-api');
     }

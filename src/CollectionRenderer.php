@@ -41,7 +41,7 @@ class CollectionRenderer
         $html = '<thead><tr>';
 
         if ($this->perms->can(CollectionPermissions::CAP_EDIT, $this->collection)) {
-            $html .= '<th class="col-check"><input type="checkbox" class="collections-check-all" title="Select all"></th>';
+            $html .= '<th class="col-check"><input type="checkbox" class="collections-check-all" title="' . $this->t('Select all') . '"></th>';
         }
 
         foreach ($cols as $col) {
@@ -75,7 +75,7 @@ class CollectionRenderer
             }
         }
 
-        $html .= '<th class="col-actions">Actions</th>';
+        $html .= '<th class="col-actions">' . $this->t('Actions') . '</th>';
         $html .= '</tr></thead>';
         return $html;
     }
@@ -88,7 +88,7 @@ class CollectionRenderer
             $canEdit = $this->perms->can(CollectionPermissions::CAP_EDIT, $this->collection);
             // +1 for actions column; +1 for checkbox column only when user has edit permission
             $cols = count($this->getColumns()) + 1 + ($canEdit ? 1 : 0);
-            $html .= "<tr><td colspan=\"{$cols}\" class=\"uk-text-center uk-text-muted\">No items found</td></tr>";
+            $html .= "<tr><td colspan=\"{$cols}\" class=\"uk-text-center uk-text-muted\">" . $this->t('No items found') . "</td></tr>";
         }
 
         foreach ($pages as $page) {
@@ -122,7 +122,7 @@ class CollectionRenderer
         $viewUrl     = $page->url;
         $isPublished  = !$page->isUnpublished();
         $toggleStatus = $isPublished ? 'published' : 'unpublished';
-        $pubLabel     = $isPublished ? 'Unpub' : 'Pub';
+        $pubLabel     = $isPublished ? $this->t('Unpub') : $this->t('Pub');
 
         $svgEdit       = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#555" style="width:14px;height:14px;display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"/></svg>';
         $svgView       = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#555" style="width:14px;height:14px;display:inline-block;vertical-align:middle;flex-shrink:0"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd"/></svg>';
@@ -134,9 +134,9 @@ class CollectionRenderer
         $showViewLink = $viewUrl && $viewUrl !== '/' && $page->template->name !== 'admin' && $page->viewable();
 
         $html .= '<td class="col-actions"><ul class="PageListActions actions collections-actions">';
-        $html .= "<li class=\"PageListActionEdit\"><a href=\"{$editUrl}\" title=\"Edit\">{$svgEdit}</a></li>";
+        $html .= "<li class=\"PageListActionEdit\"><a href=\"{$editUrl}\" title=\"" . $this->t('Edit') . "\">{$svgEdit}</a></li>";
         if ($showViewLink) {
-            $html .= "<li class=\"PageListActionView\"><a href=\"{$viewUrl}\" title=\"View\">{$svgView}</a></li>";
+            $html .= "<li class=\"PageListActionView\"><a href=\"{$viewUrl}\" title=\"" . $this->t('View') . "\">{$svgView}</a></li>";
         }
         $html .= "<li class=\"PageListActionStatus\">"
             . "<button class=\"collections-toggle-status toggle-{$toggleStatus}\" "
@@ -145,7 +145,7 @@ class CollectionRenderer
             . "</button></li>";
         if ($canDelete && ($this->globalConfig['quick_delete'] ?? false)) {
             $html .= "<li class=\"PageListActionDelete\">"
-                . "<button class=\"collections-delete\" data-id=\"{$page->id}\" title=\"Trash\">{$svgTrash}</button></li>";
+                . "<button class=\"collections-delete\" data-id=\"{$page->id}\" title=\"" . $this->t('Trash') . "\">{$svgTrash}</button></li>";
         }
         $html .= '</ul></td></tr>';
         return $html;
@@ -286,7 +286,7 @@ class CollectionRenderer
 
         // ── WireArray fallback ────────────────────────────────────────────────
         if ($value instanceof WireArray && count($value)) {
-            return (string) count($value) . ' items';
+            return sprintf($this->t('%d items'), count($value));
         }
 
         // ── Long text / HTML ──────────────────────────────────────────────────
@@ -332,9 +332,14 @@ class CollectionRenderer
     {
         if ($status === null) return '';
         $s = (int)$status;
-        if ($s & Page::statusUnpublished) return '<span class="collections-dot dot-unpublished" title="Unpublished"></span>';
-        if ($s & Page::statusHidden) return '<span class="collections-dot dot-hidden" title="Hidden"></span>';
-        return '<span class="collections-dot dot-published" title="Published"></span>';
+        if ($s & Page::statusUnpublished) return '<span class="collections-dot dot-unpublished" title="' . $this->t('Unpublished') . '"></span>';
+        if ($s & Page::statusHidden) return '<span class="collections-dot dot-hidden" title="' . $this->t('Hidden') . '"></span>';
+        return '<span class="collections-dot dot-published" title="' . $this->t('Published') . '"></span>';
+    }
+
+    private function t(string $text): string
+    {
+        return $this->sanitizer->entities(__($text, __FILE__));
     }
 
     private function renderBool(bool $value): string

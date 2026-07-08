@@ -5,6 +5,7 @@ namespace ProcessWire;
 /** @var ProcessWire\ProcessWire $wire */
 /** @var QueryResult $result */
 /** @var QueryParams $params */
+$t = static fn(string $text): string => __($text, __FILE__);
 
 if ($result->totalPages <= 1) return;
 
@@ -24,10 +25,10 @@ $buildUrl = function(int $page) use ($params): string {
     <ul>
         <?php if ($result->page > 1): ?>
         <li>
-            <a href="<?= $buildUrl(1) ?>" title="First page"><i class="fa fa-angle-double-left"></i></a>
+            <a href="<?= $buildUrl(1) ?>" title="<?= $t('First page') ?>"><i class="fa fa-angle-double-left"></i></a>
         </li>
         <li>
-            <a href="<?= $buildUrl($result->page - 1) ?>" title="Previous page"><i class="fa fa-angle-left"></i></a>
+            <a href="<?= $buildUrl($result->page - 1) ?>" title="<?= $t('Previous page') ?>"><i class="fa fa-angle-left"></i></a>
         </li>
         <?php endif; ?>
 
@@ -60,10 +61,10 @@ $buildUrl = function(int $page) use ($params): string {
 
         <?php if ($result->page < $result->totalPages): ?>
         <li>
-            <a href="<?= $buildUrl($result->page + 1) ?>" title="Next page"><i class="fa fa-angle-right"></i></a>
+            <a href="<?= $buildUrl($result->page + 1) ?>" title="<?= $t('Next page') ?>"><i class="fa fa-angle-right"></i></a>
         </li>
         <li>
-            <a href="<?= $buildUrl($result->totalPages) ?>" title="Last page"><i class="fa fa-angle-double-right"></i></a>
+            <a href="<?= $buildUrl($result->totalPages) ?>" title="<?= $t('Last page') ?>"><i class="fa fa-angle-double-right"></i></a>
         </li>
         <?php endif; ?>
     </ul>

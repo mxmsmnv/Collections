@@ -1,0 +1,225 @@
+en,it,description,file,hash
+ProcessCollections,ProcessCollections,,site/modules/Collections/ProcessCollections.module.php,e34bff35f27b639f9f253768df0c514c
+Admin interface for Collections module,Interfaccia di amministrazione per il modulo Raccolte,,site/modules/Collections/ProcessCollections.module.php,9a4be1c2856d00bf06bdfbe3aefd705a
+Collection not found: %s,Collezione non trovata: %s,,site/modules/Collections/ProcessCollections.module.php,60e7e45d5f8e141d9be59c5d2bcc0dac
+Showing %1$s-%2$s of %3$s items,Mostra %1$s-%2$s degli articoli %3$s,,site/modules/Collections/ProcessCollections.module.php,071a70d724009b925e31491749b60f63
+No items found,Nessun articolo trovato,,site/modules/Collections/ProcessCollections.module.php,5ece607071fe59ddc4c88dc6abfe2310
+"filtered by ""%s""","filtrato per ""%s""",,site/modules/Collections/ProcessCollections.module.php,6302a49de99c45ffceb9782c41ca825b
+Collections,Collections,,site/modules/Collections/ProcessCollections.module.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Invalid CSRF token,Token CSRF non valido,,site/modules/Collections/ProcessCollections.module.php,d6f26bcff9d1d786a9801abb85ca727c
+Unknown bulk action: %s,Azione collettiva sconosciuta: %s,,site/modules/Collections/ProcessCollections.module.php,5efdee0a4b9abc91e440fc6124651578
+Not allowed: %s,Non consentito: %s,,site/modules/Collections/ProcessCollections.module.php,25ce94023350880942f0754e9fbff059
+Page %1$d: %2$s,Pagina %1$d: %2$s,,site/modules/Collections/ProcessCollections.module.php,11bfd018b0986c449165a130805ee9c2
+%d pages updated.,Pagine %d aggiornate.,,site/modules/Collections/ProcessCollections.module.php,ef4c1bcdc184066b86ab9de864ea7ca0
+Configure Collections,Configura raccolte,,site/modules/Collections/ProcessCollections.module.php,92b07080200bfa7f1eb471cd196a921d
+Invalid request,Richiesta non valida,,site/modules/Collections/ProcessCollections.module.php,446b416d535ed3f547fcd653dc11d49c
+Page not found,Pagina non trovata,,site/modules/Collections/ProcessCollections.module.php,d0fbda9855d118740f1105334305c126
+Collection key is required,È richiesta la chiave di ritiro,,site/modules/Collections/ProcessCollections.module.php,dea1921fdbe9eb375ff1171f050966b9
+Key '%s' is reserved and cannot be used. Choose a different key.,La chiave '%s' è riservata e non può essere utilizzata. Scegli una chiave diversa.,,site/modules/Collections/ProcessCollections.module.php,dbfd307533eaf7e7e50b595a4e6781d4
+Collection '%s' saved.,"Raccolta ""%s"" salvata.",,site/modules/Collections/ProcessCollections.module.php,8f82dfc6e30e0fc22ac96a9c93239cb9
+Global settings saved.,Impostazioni globali salvate.,,site/modules/Collections/ProcessCollections.module.php,6b8dfee8c933298a060880374d3805ad
+Permissions saved.,Autorizzazioni salvate.,,site/modules/Collections/ProcessCollections.module.php,1a5ad8148c9929efe6003e0525232393
+Collection '%s' deleted.,"Raccolta ""%s"" eliminata.",,site/modules/Collections/ProcessCollections.module.php,a0b84000666a37dd455d3621c20bd37c
+Upload failed.,Caricamento non riuscito.,,site/modules/Collections/ProcessCollections.module.php,cde28f5998d2dd5da84a4ab21143bc67
+Invalid JSON file.,File JSON non valido.,,site/modules/Collections/ProcessCollections.module.php,cd96b33cab7aa22307c0fd49a2039505
+Configuration imported successfully.,Configurazione importata correttamente.,,site/modules/Collections/ProcessCollections.module.php,161ac898800fae05b2f686ff0a3e25ef
+API key name is required.,Il nome della chiave API è obbligatorio.,,site/modules/Collections/ProcessCollections.module.php,fb9fc814a925640362c7eec4fafddfa3
+API key '%s' created.,"Chiave API ""%s"" creata.",,site/modules/Collections/ProcessCollections.module.php,ac966c856ed4ef96fb1ff8909dde9288
+Failed to create API key.,Impossibile creare la chiave API.,,site/modules/Collections/ProcessCollections.module.php,b7012ffe0146baabe42adef3bc123c70
+API key deleted.,Chiave API eliminata.,,site/modules/Collections/ProcessCollections.module.php,809084a20d9966b10dd7418d6183a0bf
+Collections,Collections,,site/modules/Collections/Collections.module.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Configurable page collections with table UI and REST API,Raccolte di pagine configurabili con interfaccia utente tabella e API REST,,site/modules/Collections/Collections.module.php,fb57b4acf97be807b716aeb2f87e8fe3
+Collections admin page updated.,Pagina di amministrazione delle raccolte aggiornata.,,site/modules/Collections/Collections.module.php,2ce117b312fe5ae82c5e9906b168405d
+Collections admin page created at: %s,Pagina di amministrazione delle raccolte creata su: %s,,site/modules/Collections/Collections.module.php,4639ef8bd71d36901cceed206223271f
+Collections installed. Go to Admin > Collections to get started.,Raccolte installate. Vai su Amministrazione > Raccolte per iniziare.,,site/modules/Collections/Collections.module.php,b0a025d2d0cc966aa99d59ba2f5957ee
+Collections uninstalled. Custom tables dropped.,Raccolte disinstallate. Tabelle personalizzate eliminate.,,site/modules/Collections/Collections.module.php,4aaebb76c7c4e31ecc54421ab8cf1817
+Collections admin page process updated.,Processo della pagina di amministrazione delle raccolte aggiornato.,,site/modules/Collections/Collections.module.php,c45c90637663c01ea9e837bd124a8d36
+Collections admin page recreated.,Pagina di amministrazione delle raccolte ricreata.,,site/modules/Collections/Collections.module.php,892a241617fcef2a7101bc3a6c52b958
+View in %s,Visualizza in %s,,site/modules/Collections/Collections.module.php,81c2f39bb320468b7bfcca2e0524d033
+Collection,Raccolta,,site/modules/Collections/Collections.module.php,d15b505cce09406de9f918cb1f8c641c
+Open in %s,Apri in %s,,site/modules/Collections/Collections.module.php,26770172c5c0b82a760b9b2e37a2823a
+Configure Collections,Configura raccolte,,site/modules/Collections/views/configure.php,92b07080200bfa7f1eb471cd196a921d
+New Collection,Nuova collezione,,site/modules/Collections/views/configure.php,2903226e131442c2af1a9a4f1b27c3b4
+Export Config,Esporta config,,site/modules/Collections/views/configure.php,9b63cf00d761ea6322aea148266bcfd4
+Collections,Collections,,site/modules/Collections/views/configure.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Global Settings,Impostazioni globali,,site/modules/Collections/views/configure.php,9a51a007b33a46e553def6423aad8648
+API,API,,site/modules/Collections/views/configure.php,db974238714ca8de634a7ce1d083a14f
+Permissions,Autorizzazioni,,site/modules/Collections/views/configure.php,d08ccf52b4cdd08e41cfb99ec42e0b29
+Import / Export,Importa/Esporta,,site/modules/Collections/views/configure.php,97ccd1af9113ed7817b0a3c77b8ac1de
+"No collections defined yet. Click ""New Collection"" to get started.","Nessuna raccolta ancora definita. Fai clic su ""Nuova raccolta"" per iniziare.",,site/modules/Collections/views/configure.php,ffd65a87747e631203daf390df61e49a
+Key,Chiave,,site/modules/Collections/views/configure.php,897356954c2cd3d41b221e3f24f99bba
+Label,Etichetta,,site/modules/Collections/views/configure.php,b021df6aac4654c454f46c77646e745f
+Template,Modello,,site/modules/Collections/views/configure.php,278c491bdd8a53618c149c4ac790da34
+Columns,Colonne,,site/modules/Collections/views/configure.php,168b82d33f8073018c50a4f658a02559
+Items,Articoli,,site/modules/Collections/views/configure.php,9dea4016dbcc290b773ab2fae678aaa8
+Order,Ordine,,site/modules/Collections/views/configure.php,a240fa27925a635b08dc28c9e4f9216d
+Actions,Azioni,,site/modules/Collections/views/configure.php,06df33001c1d7187fdd81ea1f5b277aa
+View,Visualizza,,site/modules/Collections/views/configure.php,4351cfebe4b61d8aa5efa1d020710005
+Edit,Modifica,,site/modules/Collections/views/configure.php,7dce122004969d56ae2e0245cb754d35
+Delete,Elimina,,site/modules/Collections/views/configure.php,f2a6c498fb90ee345d997f888fce3b18
+Table Display,Visualizzazione della tabella,,site/modules/Collections/views/configure.php,4380e874c0ac83236a4e994e4357a3a3
+Show ID column,Mostra la colonna ID,,site/modules/Collections/views/configure.php,627415a29ac26dc00608dec10ab7b366
+Show Status column,Mostra la colonna Stato,,site/modules/Collections/views/configure.php,3f73e9b4bcdfb87c00f2638338297665
+Show Name column,Mostra la colonna Nome,,site/modules/Collections/views/configure.php,3a7860ee0da08b56d66dddf4168afd12
+Inline status toggle,Attiva/disattiva lo stato in linea,,site/modules/Collections/views/configure.php,138f9acfface38061fe68f5dbb8e366a
+Quick delete button,Pulsante di eliminazione rapida,,site/modules/Collections/views/configure.php,92e8fb572a809c98ce0b83685fbab894
+Confirm batch delete,Conferma l'eliminazione batch,,site/modules/Collections/views/configure.php,d0afc4a183c877741b4d1d2d835c8bee
+Default per page,Predefinito per pagina,,site/modules/Collections/views/configure.php,b3f520ac282cf813459541525870d1be
+Date format (PHP),Formato data (PHP),,site/modules/Collections/views/configure.php,aa96e98f3b83fc52f312b2b03ea08600
+Thumbnail size (px),Dimensione miniatura (px),,site/modules/Collections/views/configure.php,9527e11e87677fc21b4de17f66fa020f
+width × height,larghezza × altezza,,site/modules/Collections/views/configure.php,710717474ccd49d97947dfbe9c3f2ce2
+Search,Cerca,,site/modules/Collections/views/configure.php,13348442cc6a27032d2b4aa28b75a5d3
+Live search (debounced),Ricerca dal vivo (rimbalzata),,site/modules/Collections/views/configure.php,4519b3bf9df4730de2bd55d591d4e5ad
+Min search length,Durata minima della ricerca,,site/modules/Collections/views/configure.php,473e81551f142c63b57485d4fc838d06
+REST API,REST API,,site/modules/Collections/views/configure.php,aba3d4b49c454e1974970e7b5514b001
+Enable REST API,Abilita l'API REST,,site/modules/Collections/views/configure.php,9831726a72fcaadd86ae5137237d4414
+API base path,Percorso di base dell'API,,site/modules/Collections/views/configure.php,79c962428aa87de7f6d7e21369d045bb
+Cache,Cache,,site/modules/Collections/views/configure.php,ab0cf104f39708eabd07b8cb67e149ba
+Enable API cache,Abilita la cache dell'API,,site/modules/Collections/views/configure.php,a2ff472c3cb31cb6c61cce402efc2ee8
+Cache TTL (seconds),Cache TTL (secondi),,site/modules/Collections/views/configure.php,e1afbc1bc5e690638d1762390a24c888
+Save Global Settings,Salva le impostazioni globali,,site/modules/Collections/views/configure.php,1b66b289b1a90b97c03a11da67c819db
+API is %s,L'API è %s,,site/modules/Collections/views/configure.php,8a14e0018e95269fc6f248209e4a9f76
+enabled,abilitato,,site/modules/Collections/views/configure.php,a10311459433adf322f2590a4987c423
+disabled,disabilitato,,site/modules/Collections/views/configure.php,075ae3d2fc31640504f814f60e5ef713
+Base URL:,URL di base:,,site/modules/Collections/views/configure.php,32abd6ebf914e7af1740c27c11c5b94c
+Endpoints,Endpoint,,site/modules/Collections/views/configure.php,b8724da75fb917e992576b17378e66b3
+Method,Metodo,,site/modules/Collections/views/configure.php,4c3880bb027f159e801041b1021e88e8
+URL,URL,,site/modules/Collections/views/configure.php,e6b391a8d2c4d45902a23a8b6585703d
+Description,Descrizione,,site/modules/Collections/views/configure.php,b5a7adde1af5c87d7fd797b6245c2a39
+List all collections,Elenca tutte le collezioni,,site/modules/Collections/views/configure.php,2f0490aa5ac7cf22c51f590f12ed568a
+"List items with pagination, search, sort","Elenca gli elementi con impaginazione, ricerca, ordinamento",,site/modules/Collections/views/configure.php,2f5ee9eeeca8886d46281d954b4acf30
+Single item by ID,Articolo singolo per ID,,site/modules/Collections/views/configure.php,b2c7b6b184ce86c07a98ed31c2d80338
+Field definitions for collection,Definizioni dei campi per la raccolta,,site/modules/Collections/views/configure.php,6349eb5dc2508e418e092926aa8903e3
+Export as CSV or JSON,Esporta come CSV o JSON,,site/modules/Collections/views/configure.php,6c4f0069291f86785d7e1d3c22c1a556
+Create new item (JSON body),Crea nuovo elemento (corpo JSON),,site/modules/Collections/views/configure.php,4b253f58a631750bf38443e42041a7f1
+Update item fields,Aggiorna i campi dell'articolo,,site/modules/Collections/views/configure.php,5e92ec2bb1bbd9487ae4aad0efe0d155
+Delete item,Elimina elemento,,site/modules/Collections/views/configure.php,e8cf85cec621489ec026f7e06c67eb4e
+Query Parameters,Parametri della query,,site/modules/Collections/views/configure.php,42bb3c16fb1e5d71306e769416df7852
+Param,Param,,site/modules/Collections/views/configure.php,b7dccc7d9373cd4717256318909fcebe
+Example,Esempio,,site/modules/Collections/views/configure.php,0a52730597fb4ffa01fc117d9e71e3a9
+Search by title and configured search fields,Ricerca per titolo e campi di ricerca configurati,,site/modules/Collections/views/configure.php,33283b20a2bea47644d57bf2a652bd38
+Page number (default: 1),Numero di pagina (predefinito: 1),,site/modules/Collections/views/configure.php,03548ae5cf066f8fd820e3ed969caf55
+"Items per page (default: 25, max: 500)","Elementi per pagina (predefinito: 25, massimo: 500)",,site/modules/Collections/views/configure.php,2d0d14c042d739cca7051c767fd4f008
+Sort field,Ordina campo,,site/modules/Collections/views/configure.php,1478e29d4afb33424428ac038636b86f
+Sort direction: asc or desc,Direzione dell'ordinamento: asc o disc,,site/modules/Collections/views/configure.php,4bd54f341eec8e0ee49a00cfdf1397d6
+Limit returned fields (comma-separated),Limita i campi restituiti (separati da virgole),,site/modules/Collections/views/configure.php,d4ab57eb07a219620615ce47e9484b1e
+Return HTML table instead of JSON,Restituisce la tabella HTML anziché JSON,,site/modules/Collections/views/configure.php,70c7e4e22d22e294d603e83dbbd74752
+Examples,Esempi,,site/modules/Collections/views/configure.php,ff7c0fcd6a31e735a61c001f75426961
+Search products,Cerca prodotti,,site/modules/Collections/views/configure.php,437ac95a91364eb49587af5e146b1745
+Get single product,Ottieni un singolo prodotto,,site/modules/Collections/views/configure.php,ca005383e2d57bdb8154ad26759b4fb1
+Create a page,Crea una pagina,,site/modules/Collections/views/configure.php,8c8ecfc329eb15dbab69060f429b79b8
+Available Collections,Collezioni disponibili,,site/modules/Collections/views/configure.php,36560e908ab29c0254d9811a2ff52d70
+Authentication,Autenticazione,,site/modules/Collections/views/configure.php,c75f7811d70d17dbcd88e9d03752cbed
+recommended,consigliato,,site/modules/Collections/views/configure.php,0aef2da721f0ab14676f8d6ffb9e7e8c
+or,o,,site/modules/Collections/views/configure.php,e81c4e4f2b7b93b481e13a8553c2ae1b
+ProcessWire username & password,Nome utente e password ProcessWire,,site/modules/Collections/views/configure.php,69c5f0602ef2143527bcb24278947c1d
+Logged-in PW session cookie,Cookie di sessione PW effettuato l'accesso,,site/modules/Collections/views/configure.php,d15ca64710ea56f5358ad19c06c0b81d
+API Keys,Chiavi API,,site/modules/Collections/views/configure.php,b4717f6ab3c2357c13c0c2cd32dfc4ca
+"New key — copy now, shown once:","Nuova chiave: copia ora, mostrata una volta:",,site/modules/Collections/views/configure.php,068c444a3021a50c65d666dce2acb90f
+Name,Nome,,site/modules/Collections/views/configure.php,49ee3087348e8d44e1feda1917443987
+Prefix,Prefisso,,site/modules/Collections/views/configure.php,716de874a0d74f25c0aa8c444c3a7539
+Expires,Scade,,site/modules/Collections/views/configure.php,cfc36842a01da69c484ffdcc6782f437
+Uses,Usi,,site/modules/Collections/views/configure.php,8ae2a5b447f654bd4d75d5ec3c40a4c8
+Delete this API key?,Eliminare questa chiave API?,,site/modules/Collections/views/configure.php,a95f72a98c46b96c43581e9d2434bce0
+No API keys yet.,Nessuna chiave API ancora.,,site/modules/Collections/views/configure.php,bdb6ef0482ae76da22cf3921db7063c4
+Key name,Nome chiave,,site/modules/Collections/views/configure.php,4eb32d81c5fc0ca61c07caf07899140e
+Days (0 = never),Giorni (0 = mai),,site/modules/Collections/views/configure.php,93a5846fee3132785e1b083356199f8a
+days,giorni,,site/modules/Collections/views/configure.php,44fdec47036f482b68b748f9d786801b
+Create Key,Crea chiave,,site/modules/Collections/views/configure.php,771e662130e73e7ab04334e50f486d16
+Response Format,Formato della risposta,,site/modules/Collections/views/configure.php,8b6d2a14b49163c103e465637625a191
+Assign capabilities to roles. Superuser always has full access.,Assegnare capacità ai ruoli. Il superutente ha sempre pieno accesso.,,site/modules/Collections/views/configure.php,75753f6b438d25f456023ac305ce5871
+"Rules are additive — if a role has a capability globally, it applies to all collections.","Le regole sono aggiuntive: se un ruolo ha una capacità a livello globale, si applica a tutte le raccolte.",,site/modules/Collections/views/configure.php,c8866035a77b95e7e3ef0024cdd1533d
+Global Role Permissions,Autorizzazioni di ruolo globali,,site/modules/Collections/views/configure.php,0006cccf272a609e1ee41651aa7f5808
+Role,Ruolo,,site/modules/Collections/views/configure.php,bbbabdbe1b262f75d99d62880b953be1
+Save Permissions,Salva autorizzazioni,,site/modules/Collections/views/configure.php,b19c9871756eec3aeb8842a447ab2985
+Export Configuration,Esporta configurazione,,site/modules/Collections/views/configure.php,f81fd2af8b72ab635d66d4d7f229bf21
+"Download all collections, global settings, and permissions as a JSON file.","Scarica tutte le raccolte, le impostazioni globali e le autorizzazioni come file JSON.",,site/modules/Collections/views/configure.php,f36e8dd6527274e549d8ba4903bfbdaa
+Download JSON,Scarica JSON,,site/modules/Collections/views/configure.php,11d52919ac14e3903e6a263f4f3b233a
+Import Configuration,Importa configurazione,,site/modules/Collections/views/configure.php,b9ac57b18e69fb1995f0470622588630
+Import collections from a previously exported JSON file. Existing collections with the same key will be replaced.,Importa raccolte da un file JSON precedentemente esportato. Le raccolte esistenti con la stessa chiave verranno sostituite.,,site/modules/Collections/views/configure.php,40dec653324526a24983535a42a128e2
+Import,Importa,,site/modules/Collections/views/configure.php,72d6d7a1885885bb55a565fd1070581a
+Add Collection,Aggiungi raccolta,,site/modules/Collections/views/configure.php,10ac958235fe83036f8e5244454f7c78
+"Lowercase, a-z 0-9 _ only","Solo lettere minuscole, a-z 0-9 _",,site/modules/Collections/views/configure.php,35f3abe3bd403d0ec01144bfd49a8cb6
+— select template —,— seleziona il modello —,,site/modules/Collections/views/configure.php,174c6d00c0d0441f29d84fed0a4563a5
+Extra selector,Selettore aggiuntivo,,site/modules/Collections/views/configure.php,cda2f92f7c3e32240732a6b7c01bc2a0
+Icon (FontAwesome),Icona (FontAwesome),,site/modules/Collections/views/configure.php,433863ae77a2b06734a3858e3b07889b
+Show All Icons,Mostra tutte le icone,,site/modules/Collections/views/configure.php,d3899694e364033d1d639933da6d5529
+Group,Gruppo,,site/modules/Collections/views/configure.php,03937134cedab9078be39a77ee3a48a0
+"content, taxonomy, custom, or a new name","contenuto, tassonomia, personalizzazione o un nuovo nome",,site/modules/Collections/views/configure.php,dd106370c70caad547dae3aa8b0d569b
+Sort by / Direction,Ordina per / Direzione,,site/modules/Collections/views/configure.php,7ad0bc2deff349598046a9de959f0f01
+Per page (0 = global),Per pagina (0 = globale),,site/modules/Collections/views/configure.php,a4e8cdbcc345912f23cf6149c8001838
+Order (position in sidenav),Ordine (posizione nel sidenav),,site/modules/Collections/views/configure.php,44f71e0d1b97d316c39689cb228a9b93
+Columns (comma-separated field names),Colonne (nomi di campi separati da virgole),,site/modules/Collections/views/configure.php,87a22780f064788c7a48ddf11a6eac45
+Search fields (comma-separated),Campi di ricerca (separati da virgole),,site/modules/Collections/views/configure.php,50882a61bf3faa0ce37011c1f9713404
+Enable CSV / JSON export for this collection,Abilita l'esportazione CSV/JSON per questa raccolta,,site/modules/Collections/views/configure.php,3c86b2763f52e0d58ee190bfd8958437
+Search in related page titles (e.g. find by category name),Cerca nei titoli delle pagine correlate (ad esempio trova per nome della categoria),,site/modules/Collections/views/configure.php,ee104320c246c3a920e782edb425d2a9
+Cancel,Annulla,,site/modules/Collections/views/configure.php,ea4788705e6873b424c65e91c2846b19
+Save Collection,Salva raccolta,,site/modules/Collections/views/configure.php,2387698841191211028014e3ec2b4cdb
+Delete Collection,Elimina raccolta,,site/modules/Collections/views/configure.php,8cea924216e9aff75416cfe2a64e362e
+Are you sure you want to delete this collection?,Sei sicuro di voler eliminare questa raccolta?,,site/modules/Collections/views/configure.php,1323cb11be437cccf021d6268fc7c568
+"This only removes the collection configuration, not the actual pages.","Ciò rimuove solo la configurazione della raccolta, non le pagine effettive.",,site/modules/Collections/views/configure.php,5d80165e3c93298648cc4538bd207e2e
+Publish,Pubblica,,site/modules/Collections/views/configure.php,110a4b01beabd53b661a47d4b44bd7a8
+Unpublish,Annulla pubblicazione,,site/modules/Collections/views/configure.php,181e9a13059454fb2212f1bf10f394ac
+Configure,Configura,,site/modules/Collections/views/configure.php,f1206f9fadc5ce41694f69129aecac26
+Collections,Collections,,site/modules/Collections/views/layout.php,a9fc91939a389c7c73e7a3f3cbf411cd
+Toggle sidebar,Attiva/disattiva la barra laterale,,site/modules/Collections/views/layout.php,d4bbf74f3ed88af0c2a6c11c357b6e4d
+Content,Contenuto,,site/modules/Collections/views/layout.php,f15c1cae7882448b3fb0404682e17e61
+Taxonomy,Tassonomia,,site/modules/Collections/views/layout.php,30d10883c017c4fd6751c8982e20dae1
+Custom,Personalizzato,,site/modules/Collections/views/layout.php,90589c47f06eb971d548591f23c285af
+Configure,Configura,,site/modules/Collections/views/layout.php,f1206f9fadc5ce41694f69129aecac26
+No collections configured yet.,Nessuna raccolta ancora configurata.,,site/modules/Collections/views/dashboard.php,bfd367cd9d8e2503ee0e681501165cee
+Configure your first collection,Configura la tua prima collezione,,site/modules/Collections/views/dashboard.php,679863ef54ce52a0c65c6f6b49018dcb
+Total,Totale,,site/modules/Collections/views/dashboard.php,96b0141273eabab320119c467cdcaf17
+Configure Collections,Configura raccolte,,site/modules/Collections/views/dashboard.php,92b07080200bfa7f1eb471cd196a921d
+Export,Esportazione,,site/modules/Collections/views/collection-list.php,0095a9fa74d1713e43e370a7d7846224
+Export CSV,Esporta CSV,,site/modules/Collections/views/collection-list.php,c04f1e4841a6af78088d6ccf6f3a8a76
+Export JSON,Esporta JSON,,site/modules/Collections/views/collection-list.php,b7b35e678fac8e3ac6493d09e6bf8ec4
+Add %s,Aggiungi %s,,site/modules/Collections/views/collection-list.php,b95c09fb28e80cc672fd533a62252d70
+Selector:,Selettore:,,site/modules/Collections/views/collection-list.php,0b5137d8f6bda4ece6b6d3c3d42e565e
+Sort:,Ordina:,,site/modules/Collections/views/collection-list.php,a4c295f303bd3ad4c69344a18dc68420
+Base selector:,Selettore di base:,,site/modules/Collections/views/collection-list.php,cee9477df0588adf7ae0acfe2f725cb4
+Current query:,Domanda attuale:,,site/modules/Collections/views/collection-list.php,36b2e47c9c0a605eed4bfb25a96b873a
+This selector defines what pages appear in this collection.,Questo selettore definisce quali pagine appaiono in questa raccolta.,,site/modules/Collections/views/collection-list.php,e18a0ffee6f19b584df64ffffac66309
+Showing %1$s-%2$s of %3$s items,Mostra %1$s-%2$s degli articoli %3$s,,site/modules/Collections/views/collection-list.php,071a70d724009b925e31491749b60f63
+No items found,Nessun articolo trovato,,site/modules/Collections/views/collection-list.php,5ece607071fe59ddc4c88dc6abfe2310
+"filtered by ""%s""","filtrato per ""%s""",,site/modules/Collections/views/collection-list.php,6302a49de99c45ffceb9782c41ca825b
+%s selected,%s selezionato,,site/modules/Collections/views/collection-list.php,9033a3ec0d5878d8181cfafca376b978
+Publish,Pubblica,,site/modules/Collections/views/collection-list.php,110a4b01beabd53b661a47d4b44bd7a8
+Unpublish,Annulla pubblicazione,,site/modules/Collections/views/collection-list.php,181e9a13059454fb2212f1bf10f394ac
+Delete,Elimina,,site/modules/Collections/views/collection-list.php,f2a6c498fb90ee345d997f888fce3b18
+Cancel,Annulla,,site/modules/Collections/views/collection-list.php,ea4788705e6873b424c65e91c2846b19
+Add Collection,Aggiungi raccolta,,site/modules/Collections/views/collection-list.php,10ac958235fe83036f8e5244454f7c78
+Edit: %s,Modifica: %s,,site/modules/Collections/views/collection-list.php,f7931413dee107ddf5289c8886baf7ec
+Delete %d pages? This cannot be undone.,Eliminare le pagine %d? Questa operazione non può essere annullata.,,site/modules/Collections/views/collection-list.php,130c6af65d9c5d95f3010f180598e88e
+Delete this page? This cannot be undone.,Eliminare questa pagina? Questa operazione non può essere annullata.,,site/modules/Collections/views/collection-list.php,c3b416d5f1e38c21d3b855dc9e608c9b
+Published,Pubblicato,,site/modules/Collections/views/collection-list.php,9b9d8a976b42e0bd66381797644943d5
+Unpublished,Inedito,,site/modules/Collections/views/collection-list.php,0774e163cd7df482edd2abd498189f8b
+Pub,Pub,,site/modules/Collections/views/collection-list.php,a29bdd003ef6c0c34279807341f450f2
+Unpub,Non pubblic,,site/modules/Collections/views/collection-list.php,f40271af9378ba3b92b006eb2f2441bb
+Show All Icons,Mostra tutte le icone,,site/modules/Collections/views/collection-list.php,d3899694e364033d1d639933da6d5529
+Hide Icons,Nascondi icone,,site/modules/Collections/views/collection-list.php,9bd9ce3b057ac342ab01360df2361d9d
+All %s,Tutti %s,,site/modules/Collections/views/partials/toolbar.php,84d1595b1584d106bf0310b6905e7c3c
+Apply,Applicare,,site/modules/Collections/views/partials/toolbar.php,9639e32cab248434a17ab32237cb3b71
+Clear,Chiaro,,site/modules/Collections/views/partials/toolbar.php,dc30bc0c7914db5918da4263fce93ad2
+First page,Prima pagina,,site/modules/Collections/views/partials/pagination.php,2e01b86887d023c873d0ebb2811e3bd8
+Previous page,Pagina precedente,,site/modules/Collections/views/partials/pagination.php,16ded2dc32322d80ce2362a47f4d7ef4
+Next page,Pagina successiva,,site/modules/Collections/views/partials/pagination.php,374bea6cf8bd1e8fd64570b629cc6562
+Last page,Ultima pagina,,site/modules/Collections/views/partials/pagination.php,339aaf6f96935365023a6e4c95c0ba95
+Select all,Seleziona tutto,,site/modules/Collections/src/CollectionRenderer.php,4c41e0bd957698b58100a5c687d757d9
+Actions,Azioni,,site/modules/Collections/src/CollectionRenderer.php,06df33001c1d7187fdd81ea1f5b277aa
+No items found,Nessun articolo trovato,,site/modules/Collections/src/CollectionRenderer.php,5ece607071fe59ddc4c88dc6abfe2310
+Unpub,Non pubblic,,site/modules/Collections/src/CollectionRenderer.php,f40271af9378ba3b92b006eb2f2441bb
+Pub,Pub,,site/modules/Collections/src/CollectionRenderer.php,a29bdd003ef6c0c34279807341f450f2
+Edit,Modifica,,site/modules/Collections/src/CollectionRenderer.php,7dce122004969d56ae2e0245cb754d35
+View,Visualizza,,site/modules/Collections/src/CollectionRenderer.php,4351cfebe4b61d8aa5efa1d020710005
+Trash,Cestino,,site/modules/Collections/src/CollectionRenderer.php,a7e253cd8dd95da3e20daf45519a8dc2
+%d items,Articoli %d,,site/modules/Collections/src/CollectionRenderer.php,cf1e3d72714f82f85aa7f326af340459
+Unpublished,Inedito,,site/modules/Collections/src/CollectionRenderer.php,0774e163cd7df482edd2abd498189f8b
+Hidden,Nascosto,,site/modules/Collections/src/CollectionRenderer.php,7acdf85c69cc3c5305456a293524386e
+Published,Pubblicato,,site/modules/Collections/src/CollectionRenderer.php,9b9d8a976b42e0bd66381797644943d5
+Collections: view pages,Collezioni: visualizza le pagine,,site/modules/Collections/install/permissions.php,d9589a70d3500a8ed2116321b3416a0b
+Collections: create pages,Collezioni: crea pagine,,site/modules/Collections/install/permissions.php,e84fce1236bf65691c4dec00ae0948b9
+Collections: edit pages,Raccolte: modifica le pagine,,site/modules/Collections/install/permissions.php,38798d540b706498cb3d592641960d8e
+Collections: delete pages,Raccolte: elimina le pagine,,site/modules/Collections/install/permissions.php,825747a19e20f5a7e780b920bdeba529
+Collections: configure module,Raccolte: configura il modulo,,site/modules/Collections/install/permissions.php,b10d0ba5aee31b32896660c19316c559
+Collections: export data,Raccolte: esportare dati,,site/modules/Collections/install/permissions.php,a72c3416f2073ca3927fa41a1663b18b

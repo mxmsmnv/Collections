@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.6 — 2026-07-08
+
+### Added
+
+- **Admin interface localization** — Collections now uses ProcessWire's standard module translation APIs across the admin UI, module messages, permissions, table renderer, collection views, configuration screens, and JavaScript-driven controls.
+- **Bundled European language files** — added `languages/*.csv` translation files for 32 European languages, installable through ProcessWire's native module translation workflow.
+
+### Fixed
+
+- **Extra closing script tag** — removed a stray `</script>` from the collection list view while wiring translated JavaScript strings.
+
+---
+
 ## 1.9.5 — 2026-06-28
 
 ### Fixed
