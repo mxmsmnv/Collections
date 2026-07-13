@@ -191,6 +191,30 @@ To install them: **Modules → Collections / ProcessCollections → install tran
 
 ---
 
+## Custom Cell Rendering
+
+Collections renders common ProcessWire field types automatically. Fields using `InputfieldRockIcons` render as RockIcons SVGs in the admin table when the RockIcons module is installed.
+
+For project-specific display needs, hook `CollectionRenderer::renderCellValue`:
+
+```php
+$wire->addHookAfter('CollectionRenderer::renderCellValue', function(HookEvent $event) {
+    /** @var Page $page */
+    $page = $event->arguments(0);
+    $field = $event->arguments(1);
+
+    if ($field !== 'priority') return;
+
+    $value = (string) $page->getUnformatted($field);
+    $class = $value === 'high' ? 'uk-label-danger' : 'uk-label';
+    $event->return = "<span class='uk-label {$class}'>" . wire('sanitizer')->entities($value) . '</span>';
+});
+```
+
+The hook receives the page as argument `0`, the field/column name as argument `1`, and the renderer as `$event->object`.
+
+---
+
 ## Permissions
 
 | Permission slug | Description |

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.7 — 2026-07-13
+
+### Added
+
+- **RockIcons table rendering** — fields using `InputfieldRockIcons` now render their SVG icon in collection tables when the RockIcons module is installed, with a safe text fallback if rendering is unavailable.
+- **Hookable cell rendering** — `CollectionRenderer::renderCellValue()` is now hookable, allowing site code and third-party modules to override or extend table cell HTML without editing Collections core files.
+
+---
+
 ## 1.9.6 — 2026-07-08
 
 ### Added

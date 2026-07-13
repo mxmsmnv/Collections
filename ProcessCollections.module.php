@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => __('ProcessCollections', __FILE__),
-            'version'     => 196,
+            'version'     => 197,
             'summary'     => __('Admin interface for Collections module', __FILE__),
             'author'      => 'Maxim Semenov',
             'href'     => 'https://smnv.org',

@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-class CollectionRenderer
+class CollectionRenderer extends WireData
 {
     private $sanitizer;
     private string $adminUrl;
@@ -28,6 +28,16 @@ class CollectionRenderer
         $html .= $this->renderTableFoot($result);
         $html .= '</table></div>';
         return $html;
+    }
+
+    public function getCollection(): Collection
+    {
+        return $this->collection;
+    }
+
+    public function getGlobalConfig(): array
+    {
+        return $this->globalConfig;
     }
 
     private function renderTableFoot(QueryResult $result): string
@@ -151,7 +161,7 @@ class CollectionRenderer
         return $html;
     }
 
-    public function renderCellValue($page, string $field): string
+    public function ___renderCellValue($page, string $field): string
     {
         if ($field === 'id')     return (string) $page->id;
         if ($field === 'name')   return $this->sanitizer->entities($page->name);
@@ -178,6 +188,11 @@ class CollectionRenderer
             'FieldtypeRepeaterMatrix', 'FieldtypeRepeater',
         ]);
         $value = $needsFormatted ? $page->get($field) : $page->getUnformatted($field);
+
+        // ── RockIcons ────────────────────────────────────────────────────────
+        if ($this->isRockIconsField($fieldObj)) {
+            return $this->renderRockIcon($value);
+        }
 
         // Explicit type overrides from column config
         if ($type === 'date')   return $this->formatDate($value);
@@ -309,6 +324,47 @@ class CollectionRenderer
         }
 
         return $this->sanitizer->entities((string)$value);
+    }
+
+    private function isRockIconsField($fieldObj): bool
+    {
+        if (!$fieldObj) return false;
+
+        $inputfieldClass = (string) (
+            $fieldObj->get('inputfieldClass')
+            ?: ($fieldObj->inputfieldClass ?? '')
+        );
+
+        return $fieldObj
+            && $inputfieldClass === 'InputfieldRockIcons'
+            && $this->wire->modules->isInstalled('RockIcons');
+    }
+
+    private function renderRockIcon(mixed $value): string
+    {
+        $icon = trim((string) $value);
+        if ($icon === '') return '<span class="uk-text-muted">—</span>';
+
+        try {
+            $module = $this->wire->modules->get('RockIcons');
+            if (!$module || !method_exists($module, 'svg')) {
+                return $this->sanitizer->entities($icon);
+            }
+
+            $svg = trim((string) $module->svg($icon));
+            if ($svg === '') return '<span class="uk-text-muted">—</span>';
+
+            return '<span class="collections-rockicon" aria-label="'
+                . $this->sanitizer->entities($icon)
+                . '">'
+                . $svg
+                . '</span>';
+        } catch (\Throwable $e) {
+            if ($this->wire->config->debug) {
+                $this->wire->log->save('collections', 'RockIcons render error: ' . $e->getMessage());
+            }
+            return $this->sanitizer->entities($icon);
+        }
     }
 
     private function getColumns(): array
