@@ -4,7 +4,7 @@ namespace ProcessWire;
 
 /** @var ProcessWire\ProcessWire $wire */
 /** @var Collection[] $allCollections */
-/** @var string $adminUrl */
+/** @var string $collectionsUrl */
 
 $t = static fn(string $text): string => __($text, __FILE__);
 
@@ -30,7 +30,7 @@ $groups = $sorted;
 <?php if (empty($allCollections)): ?>
 <div class="uk-alert uk-alert-warning">
     <p><?= $t('No collections configured yet.') ?>
-       <a href="<?= $adminUrl ?>collections/?configure=1"><?= $t('Configure your first collection') ?></a>.
+       <a href="<?= $collectionsUrl ?>?configure=1"><?= $t('Configure your first collection') ?></a>.
     </p>
 </div>
 <?php else: ?>
@@ -46,7 +46,7 @@ $groups = $sorted;
             if ($col->selector) $countSel .= ', ' . $col->selector;
             $count = $wire->pages->count($countSel);
         ?>
-        <a href="<?= $adminUrl ?>collections/?col=<?= $col->key ?>" class="dashboard-card">
+        <a href="<?= $collectionsUrl ?>?col=<?= $col->key ?>" class="dashboard-card">
             <div class="dashboard-card-label"><?= strtoupper($wire->sanitizer->entities($col->label)) ?></div>
             <div class="dashboard-card-count"><?= number_format($count) ?></div>
             <div class="dashboard-card-sub"><?= $t('Total') ?></div>
@@ -60,7 +60,7 @@ $groups = $sorted;
 
 <?php if ($wire->user->hasPermission('collections-configure') || $wire->user->isSuperuser()): ?>
 <div class="dashboard-footer">
-    <a href="<?= $adminUrl ?>collections/?configure=1" class="ui-button ui-state-default ui-priority-secondary">
+    <a href="<?= $collectionsUrl ?>?configure=1" class="ui-button ui-state-default ui-priority-secondary">
         <span class="ui-button-text"><i class="fa fa-cog"></i> <?= $t('Configure Collections') ?></span>
     </a>
 </div>

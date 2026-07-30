@@ -6,8 +6,8 @@ namespace ProcessWire;
 /** @var array $collections */
 /** @var Collection|null $current */
 /** @var string $content */
+/** @var string $collectionsUrl */
 
-$adminUrl = $wire->config->urls->admin;
 $t        = static fn(string $text): string => __($text, __FILE__);
 $groups   = [];
 
@@ -37,7 +37,7 @@ $groups = $sorted;
             <div class="sidenav-group">
                 <span class="sidenav-group-label"><?= $wire->sanitizer->entities(__(ucfirst($group), __FILE__)) ?></span>
                 <?php foreach ($cols as $col): ?>
-                <a href="<?= $adminUrl ?>collections/?col=<?= $col->key ?>"
+                <a href="<?= $collectionsUrl ?>?col=<?= $col->key ?>"
                    class="sidenav-item<?= ($current && $current->key === $col->key) ? ' active' : '' ?>"
                    title="<?= $wire->sanitizer->entities($col->label) ?>">
                     <i class="fa <?= $wire->sanitizer->entities($col->icon) ?>"></i>
@@ -49,7 +49,7 @@ $groups = $sorted;
         </nav>
         <?php if ($wire->user->hasPermission('collections-configure') || $wire->user->isSuperuser()): ?>
         <div class="sidenav-footer">
-            <a href="<?= $adminUrl ?>collections/?configure=1" class="sidenav-configure<?= (!$current) ? ' active' : '' ?>" title="<?= $t('Configure') ?>">
+            <a href="<?= $collectionsUrl ?>?configure=1" class="sidenav-configure<?= (!$current) ? ' active' : '' ?>" title="<?= $t('Configure') ?>">
                 <i class="fa fa-cog"></i><span class="sidenav-item-label"> <?= $t('Configure') ?></span>
             </a>
         </div>

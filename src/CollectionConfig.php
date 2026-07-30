@@ -361,6 +361,7 @@ class CollectionConfig
             'show_id'               => true,
             'show_status'           => true,
             'show_name'             => false,
+            'show_page_edit_link'   => false,
             'inline_status'         => true,
             'quick_delete'          => false,
             'confirm_batch_delete'  => true,

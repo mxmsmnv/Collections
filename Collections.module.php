@@ -10,11 +10,11 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.7
+ * @version 1.9.8
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.7';
+    public const VERSION = '1.9.8';
 
     private ?CollectionConfig $collectionConfig = null;
 
@@ -22,7 +22,7 @@ class Collections extends WireData implements Module
     {
         return [
             'title'    => __('Collections', __FILE__),
-            'version'  => 197,
+            'version'  => 198,
             'summary'  => __('Configurable page collections with table UI and REST API', __FILE__),
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -55,7 +55,7 @@ class Collections extends WireData implements Module
         // Admin-only hooks — $page is fully known here (unlike in init())
         if ($isAdmin) {
             $this->addHookAfter('ProcessPageEdit::buildForm', $this, 'addCollectionLink');
-            $this->addHookAfter('ProcessPageList::getPageActions', $this, 'addPageListAction');
+            $this->addHookAfter('ProcessPageListRender::getPageActions', $this, 'addPageListAction');
             return;
         }
 
@@ -220,12 +220,16 @@ class Collections extends WireData implements Module
 
     public function addCollectionLink(HookEvent $event): void
     {
+        if (!($this->getConfig()->getGlobal()['show_page_edit_link'] ?? false)) return;
+
         $form = $event->return;
         $page = $event->object->getPage();
         $links = [];
+        $perms = new CollectionPermissions($this->wire('user'), $this->getConfig());
 
         foreach ($this->getConfig()->getCollections() as $col) {
             if ($col->template !== $page->template->name) continue;
+            if (!$perms->can(CollectionPermissions::CAP_VIEW, $col)) continue;
 
             // If collection has extra selector, check if page matches it
             if (!empty($col->selector)) {
@@ -234,8 +238,7 @@ class Collections extends WireData implements Module
                 if (!$match) continue;
             }
 
-            $adminUrl = $this->wire('config')->urls->admin;
-            $url      = $adminUrl . "collections/?col={$col->key}";
+            $url = $this->collectionsAdminUrl() . "?col={$col->key}";
             $links[] = "<a href='{$url}' class='uk-button uk-button-default uk-button-small'>"
                 . "<i class='fa {$col->icon}'></i> " . sprintf($this->_('View in %s'), $col->label) . '</a>';
         }
@@ -253,9 +256,11 @@ class Collections extends WireData implements Module
     {
         $page    = $event->arguments('page');
         $actions = $event->return;
+        $perms   = new CollectionPermissions($this->wire('user'), $this->getConfig());
 
         foreach ($this->getConfig()->getCollections() as $col) {
             if ($col->template !== $page->template->name) continue;
+            if (!$perms->can(CollectionPermissions::CAP_VIEW, $col)) continue;
 
             // If collection has extra selector, check if page matches
             if (!empty($col->selector)) {
@@ -263,7 +268,7 @@ class Collections extends WireData implements Module
                 if (!$this->wire('pages')->count($fullSelector)) continue;
             }
 
-            $url       = $this->wire('config')->urls->admin . "collections/?col={$col->key}";
+            $url       = $this->collectionsAdminUrl() . "?col={$col->key}";
             $actions[] = [
                 'cn'   => $this->_('Collection'),
                 'name' => sprintf($this->_('Open in %s'), $col->label),
@@ -272,6 +277,13 @@ class Collections extends WireData implements Module
         }
 
         $event->return = $actions;
+    }
+
+    private function collectionsAdminUrl(): string
+    {
+        $page = $this->wire('pages')->get('template=admin, process=ProcessCollections, include=all');
+        if ($page && $page->id) return rtrim($page->url, '/') . '/';
+        return rtrim($this->wire('config')->urls->admin, '/') . '/collections/';
     }
 
     // ── Install / Uninstall ───────────────────────────────────────────────────

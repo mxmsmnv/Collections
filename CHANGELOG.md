@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.9.8 — 2026-07-30
+
+### Fixed
+
+- Page-list actions now hook the actual `ProcessPageListRender::getPageActions`
+  method and appear as intended.
+- Internal Collections links, breadcrumbs, and redirects now follow the actual
+  Process page URL when the admin page is moved or renamed.
+- Page-edit and page-list collection links now respect the collection view
+  permission.
+
+### Added
+
+- Added an opt-in global setting for the collection link on page-edit forms;
+  it is disabled by default.
+
+---
+
 ## 1.9.7 — 2026-07-13
 
 ### Added

@@ -6,7 +6,7 @@ namespace ProcessWire;
  * ProcessCollections
  *
  * Admin Process module for the Collections module.
- * Provides the admin UI at /admin/collections/
+ * Provides the Collections admin UI wherever its Process page is located.
  */
 class ProcessCollections extends Process
 {
@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => __('ProcessCollections', __FILE__),
-            'version'     => 197,
+            'version'     => 198,
             'summary'     => __('Admin interface for Collections module', __FILE__),
             'author'      => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -81,7 +81,7 @@ class ProcessCollections extends Process
             return json_encode(['ok' => false, 'error' => 'CSRF']);
         }
 
-        // Support both URL segment (/collections/key/) and GET param (/collections/?col=key)
+        // Support both a URL segment and the ?col=key query parameter.
         $key = $this->wire('input')->urlSegment1
             ?: $this->wire('sanitizer')->pageName($this->wire('input')->get('col') ?? '');
 
@@ -202,8 +202,8 @@ class ProcessCollections extends Process
 
         // Set page title/breadcrumb
         $this->wire('processHeadline', $collection->label);
-        $adminUrl = $this->wire('config')->urls->admin;
-        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', $this->_('Collections')));
+        $collectionsUrl = $this->collectionsUrl();
+        $this->wire('breadcrumbs')->add(new Breadcrumb($collectionsUrl, $this->_('Collections')));
         $this->fuel->set('title', $collection->label);
 
         // Render layout
@@ -215,7 +215,8 @@ class ProcessCollections extends Process
         ob_start();
         $wire          = $this->wire();
         $perms         = $this->perms;
-        // $collection, $result, $params, $globalConfig, $adminUrl, $renderer, $filterOptions
+        // $collection, $result, $params, $globalConfig, $adminUrl,
+        // $collectionsUrl, $renderer, $filterOptions
         // are already defined above in renderCollection()
         include __DIR__ . '/views/collection-list.php';
         $content = ob_get_clean();
@@ -310,7 +311,8 @@ class ProcessCollections extends Process
     {
         $this->wire('processHeadline', $this->_('Collections'));
         $this->fuel->set('title', $this->_('Collections'));
-        $this->wire('breadcrumbs')->add(new Breadcrumb($this->wire('config')->urls->admin . 'collections/', $this->_('Collections')));
+        $collectionsUrl = $this->collectionsUrl();
+        $this->wire('breadcrumbs')->add(new Breadcrumb($collectionsUrl, $this->_('Collections')));
 
         $allCollections = $this->perms->filterVisible($this->config->getCollections());
         usort($allCollections, fn($a, $b) => $a->order <=> $b->order);
@@ -339,7 +341,7 @@ class ProcessCollections extends Process
             if (!$this->wire('session')->CSRF->validate()) {
                 $this->error($this->_('Invalid CSRF token'));
             } else {
-                $configureUrl = $this->wire('config')->urls->admin . 'collections/?configure=1';
+                $configureUrl = $this->collectionsUrl() . '?configure=1';
                 if ($this->wire('input')->get('save_collection')) {
                     $this->handleSaveCollection();
                     $this->wire('session')->redirect($configureUrl . '#tab-collections');
@@ -370,8 +372,9 @@ class ProcessCollections extends Process
 
         // Render configure UI
         $adminUrl = $this->wire('config')->urls->admin;
+        $collectionsUrl = $this->collectionsUrl();
         $this->wire('processHeadline', $this->_('Configure Collections'));
-        $this->wire('breadcrumbs')->add(new Breadcrumb($adminUrl . 'collections/', $this->_('Collections')));
+        $this->wire('breadcrumbs')->add(new Breadcrumb($collectionsUrl, $this->_('Collections')));
         $this->fuel->set('title', $this->_('Configure Collections'));
 
         // Debug panel
@@ -508,7 +511,7 @@ class ProcessCollections extends Process
 
         $boolKeys = ['show_id', 'show_status', 'show_name', 'sticky_header', 'inline_status',
                      'quick_delete', 'confirm_batch_delete', 'live_search', 'export_csv',
-                     'api_enabled', 'cache_enabled'];
+                     'api_enabled', 'cache_enabled', 'show_page_edit_link'];
 
         foreach ($boolKeys as $key) {
             $current[$key] = (bool) $post->text($key);
@@ -557,7 +560,7 @@ class ProcessCollections extends Process
         // Note: CSRF already validated in renderConfigure() before this method is called.
         $this->config->deleteCollection($key);
         $this->message(sprintf($this->_("Collection '%s' deleted."), $key));
-        $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1');
+        $this->wire('session')->redirect($this->collectionsUrl() . '?configure=1');
     }
 
     private function handleExportConfig(): void
@@ -643,7 +646,7 @@ class ProcessCollections extends Process
         } else {
             $this->error($this->_('Failed to create API key.'));
         }
-        $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1#tab-api');
+        $this->wire('session')->redirect($this->collectionsUrl() . '?configure=1#tab-api');
     }
 
     private function handleDeleteApiKey(): void
@@ -653,7 +656,7 @@ class ProcessCollections extends Process
             $this->config->deleteApiKey($id);
             $this->message($this->_('API key deleted.'));
         }
-        $this->wire('session')->redirect($this->wire('config')->urls->admin . 'collections/?configure=1#tab-api');
+        $this->wire('session')->redirect($this->collectionsUrl() . '?configure=1#tab-api');
     }
 
     // ── Assets ────────────────────────────────────────────────────────────────
@@ -665,5 +668,10 @@ class ProcessCollections extends Process
         $v = filemtime(__DIR__ . '/assets/collections.js');
         $config->scripts->add("{$baseUrl}collections.js?v={$v}");
         // CSS is inlined via layout.php to guarantee AdminTheme override — not registered here.
+    }
+
+    private function collectionsUrl(): string
+    {
+        return rtrim((string) $this->wire('page')->url, '/') . '/';
     }
 }
