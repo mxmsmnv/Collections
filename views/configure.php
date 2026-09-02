@@ -78,7 +78,7 @@ foreach ($collections as $existingCol) {
                         <td class="uk-text-small uk-text-muted"><?= $wire->sanitizer->entities(implode(', ', $col->columns)) ?></td>
                         <td class="uk-text-center">
                             <?php
-                            $countSel = 'template=' . $col->template . ', include=all';
+                            $countSel = 'template=' . $col->template . ', include=all, check_access=1';
                             if ($col->selector) $countSel .= ', ' . $col->selector;
                             echo number_format($wire->pages->count($countSel));
                             ?>
@@ -173,7 +173,7 @@ foreach ($collections as $existingCol) {
                         <div class="uk-margin-small">
                             <label>
                                 <input type="checkbox" name="api_enabled" value="1"
-                                    <?= ($globalConfig['api_enabled'] ?? true) ? 'checked' : '' ?>
+                                    <?= ($globalConfig['api_enabled'] ?? false) ? 'checked' : '' ?>
                                     class="uk-checkbox">
                                 <?= $t('Enable REST API') ?>
                             </label>
@@ -221,11 +221,11 @@ foreach ($collections as $existingCol) {
             ?>
 
             <!-- API Status -->
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 16px;background:<?= ($globalConfig['api_enabled'] ?? true) ? '#d4edda' : '#f8d7da' ?>;border-radius:6px;">
-                <i class="fa fa-<?= ($globalConfig['api_enabled'] ?? true) ? 'check-circle' : 'times-circle' ?>" style="font-size:20px;color:<?= ($globalConfig['api_enabled'] ?? true) ? '#28a745' : '#dc3545' ?>;"></i>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 16px;background:<?= ($globalConfig['api_enabled'] ?? false) ? '#d4edda' : '#f8d7da' ?>;border-radius:6px;">
+                <i class="fa fa-<?= ($globalConfig['api_enabled'] ?? false) ? 'check-circle' : 'times-circle' ?>" style="font-size:20px;color:<?= ($globalConfig['api_enabled'] ?? false) ? '#28a745' : '#dc3545' ?>;"></i>
                 <div>
-                    <strong><?= sprintf($t('API is %s'), ($globalConfig['api_enabled'] ?? true) ? $t('enabled') : $t('disabled')) ?></strong>
-                    <?php if ($globalConfig['api_enabled'] ?? true): ?>
+                    <strong><?= sprintf($t('API is %s'), ($globalConfig['api_enabled'] ?? false) ? $t('enabled') : $t('disabled')) ?></strong>
+                    <?php if ($globalConfig['api_enabled'] ?? false): ?>
                     <span style="color:#666;margin-left:8px;"><?= $t('Base URL:') ?> <code><?= htmlspecialchars($fullApiUrl) ?></code></span>
                     <?php endif; ?>
                 </div>
@@ -327,12 +327,13 @@ foreach ($collections as $existingCol) {
 
                     <?php if ($apiKeys): ?>
                     <table class="uk-table uk-table-small uk-table-divider" style="font-size:12px;">
-                        <thead><tr><th><?= $t('Name') ?></th><th><?= $t('Prefix') ?></th><th><?= $t('Expires') ?></th><th><?= $t('Uses') ?></th><th></th></tr></thead>
+                        <thead><tr><th><?= $t('Name') ?></th><th><?= $t('Prefix') ?></th><th><?= $t('Capabilities') ?></th><th><?= $t('Expires') ?></th><th><?= $t('Uses') ?></th><th></th></tr></thead>
                         <tbody>
                         <?php foreach ($apiKeys as $key): ?>
                         <tr<?= $key['expired'] ? ' style="opacity:0.4;"' : '' ?>>
                             <td><strong><?= $wire->sanitizer->entities($key['name']) ?></strong></td>
                             <td><code style="font-size:11px;"><?= htmlspecialchars($key['key_prefix']) ?>…</code></td>
+                            <td><?= $wire->sanitizer->entities(implode(', ', $key['caps'])) ?></td>
                             <td><?= $key['expires'] ? date('M j', strtotime($key['expires'])) . ($key['expired'] ? ' <span style="color:red;">✗</span>' : '') : '∞' ?></td>
                             <td class="uk-text-center"><?= number_format($key['use_count']) ?></td>
                             <td>
@@ -354,6 +355,11 @@ foreach ($collections as $existingCol) {
                         <?= $wire->session->CSRF->renderInput() ?>
                         <div style="display:flex;flex-direction:column;gap:6px;">
                             <input type="text" name="key_name" required placeholder="<?= $t('Key name') ?>" class="uk-input">
+                            <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12px;">
+                                <?php foreach (['view', 'create', 'edit', 'delete', 'export'] as $cap): ?>
+                                    <label><input type="checkbox" name="key_caps[]" value="<?= $cap ?>" <?= $cap === 'view' ? 'checked' : '' ?>> <?= $wire->sanitizer->entities(ucfirst($cap)) ?></label>
+                                <?php endforeach; ?>
+                            </div>
                             <div style="display:flex;gap:6px;">
                                 <input type="number" name="key_expiration" value="0" min="0" max="3650" class="uk-input" style="width:80px;" title="<?= $t('Days (0 = never)') ?>">
                                 <span style="font-size:11px;color:#888;line-height:30px;"><?= $t('days') ?></span>

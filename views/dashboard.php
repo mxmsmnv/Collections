@@ -42,7 +42,7 @@ $groups = $sorted;
         <?php foreach ($cols as $col):
             $selector = $col->buildSelector();
             // Strip dynamic parts (search/filters) for count
-            $countSel = 'template=' . $col->template . ', include=all';
+            $countSel = 'template=' . $col->template . ', include=all, check_access=1';
             if ($col->selector) $countSel .= ', ' . $col->selector;
             $count = $wire->pages->count($countSel);
         ?>

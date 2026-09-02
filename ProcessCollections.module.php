@@ -18,7 +18,7 @@ class ProcessCollections extends Process
     {
         return [
             'title'       => __('ProcessCollections', __FILE__),
-            'version'     => 198,
+            'version'     => 199,
             'summary'     => __('Admin interface for Collections module', __FILE__),
             'author'      => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -42,14 +42,7 @@ class ProcessCollections extends Process
         $this->config = $collections->getConfig();
         $this->perms  = new CollectionPermissions($this->wire('user'), $this->config);
 
-        // Log every request to collections
-        $seg = $this->wire('input')->urlSegment1;
-        $this->wire('log')->save('collections', sprintf(
-            'init() called. URL=%s seg1=%s method=%s',
-            $this->wire('input')->url(),
-            $seg ?: '(none)',
-            $_SERVER['REQUEST_METHOD']
-        ));
+        $this->debugLog('Process initialized');
     }
 
     /**
@@ -58,28 +51,13 @@ class ProcessCollections extends Process
      */
     public function ___executeSegment($segment): string
     {
-        $this->wire('log')->save('collections', '___executeSegment() called. segment=' . $segment);
+        $this->debugLog('Segment route: ' . $this->wire('sanitizer')->pageName((string)$segment));
         return $this->___execute();
     }
 
     public function ___execute(): string
     {
-        $this->wire('log')->save('collections', sprintf(
-            '___execute() called. seg1=%s col_get=%s GET=%s',
-            $this->wire('input')->urlSegment1 ?: '(none)',
-            $this->wire('input')->get('col') ?: '(none)',
-            json_encode($_GET)
-        ));
-
         $this->setupAssets();
-
-        // Handle toggle_status AJAX early (works on collection pages too)
-        if ($this->wire('input')->requestMethod('POST') && $this->wire('input')->get('toggle_status')) {
-            if ($this->wire('session')->CSRF->validate()) {
-                return $this->handleToggleStatus();
-            }
-            return json_encode(['ok' => false, 'error' => 'CSRF']);
-        }
 
         // Support both a URL segment and the ?col=key query parameter.
         $key = $this->wire('input')->urlSegment1
@@ -121,6 +99,13 @@ class ProcessCollections extends Process
 
         $this->currentCollection = $collection;
 
+        if ($this->wire('input')->requestMethod('POST') && $this->wire('input')->get('toggle_status')) {
+            $this->wire('session')->CSRF->validate();
+            $this->perms->can(CollectionPermissions::CAP_EDIT, $collection)
+                || throw new WirePermissionException($this->_('Not allowed to change page status'));
+            return $this->handleToggleStatus($collection);
+        }
+
         // Handle export from collection page
         $export = $this->wire('input')->get('export');
         if ($export && $this->perms->can(CollectionPermissions::CAP_EXPORT, $collection)) {
@@ -139,7 +124,7 @@ class ProcessCollections extends Process
 
     private function renderCollection(Collection $collection): string
     {
-        $this->wire('log')->save('collections', 'renderCollection() key=' . $collection->key);
+        $this->debugLog('Render collection: ' . $collection->key);
         $globalConfig = $this->config->getGlobal();
         $input        = $this->wire('input');
         $params       = QueryParams::fromInput($input);
@@ -253,11 +238,6 @@ class ProcessCollections extends Process
 
     private function executeBulkAction(Collection $collection): string
     {
-        $tokenName = $this->wire('session')->CSRF->getTokenName();
-        $expected  = $this->wire('session')->CSRF->getTokenValue();
-        $received  = $this->wire('input')->post($tokenName);
-        $this->wire('log')->save('collections', "CSRF debug: name={$tokenName} expected={$expected} received={$received}");
-
         $this->wire('session')->CSRF->validate()
             || throw new WireCSRFException($this->_('Invalid CSRF token'));
 
@@ -275,8 +255,18 @@ class ProcessCollections extends Process
 
         $results = ['success' => 0, 'errors' => []];
 
-        foreach ($this->wire('pages')->getById($ids) as $page) {
+        foreach (array_values(array_unique($ids)) as $id) {
+            $page = $this->wire('pages')->get($id);
             try {
+                if (!$page->id) {
+                    throw new WirePermissionException($this->_('Page is outside this collection'));
+                }
+                if (!$collection->containsPage($page)) {
+                    throw new WirePermissionException($this->_('Page is outside this collection'));
+                }
+                if ($action === 'delete' ? !$page->deleteable() : !$page->editable()) {
+                    throw new WirePermissionException($this->_('Native page access denied'));
+                }
                 match($action) {
                     'publish'   => (function() use ($page) {
                         $page->of(false);
@@ -292,7 +282,7 @@ class ProcessCollections extends Process
                 };
                 $results['success']++;
             } catch (Throwable $e) {
-                $results['errors'][] = sprintf($this->_('Page %1$d: %2$s'), $page->id, $e->getMessage());
+                $results['errors'][] = sprintf($this->_('Page %1$d: %2$s'), $id, $e->getMessage());
             }
         }
 
@@ -332,7 +322,7 @@ class ProcessCollections extends Process
 
     private function renderConfigure(): string
     {
-        $this->wire('log')->save('collections', 'renderConfigure() called');
+        $this->debugLog('Render configuration');
         $this->perms->can(CollectionPermissions::CAP_CONFIGURE)
             || throw new WirePermissionException($this->_('Not allowed to configure Collections'));
 
@@ -356,8 +346,6 @@ class ProcessCollections extends Process
                 } elseif ($this->wire('input')->get('import_config')) {
                     $this->handleImportConfig();
                     $this->wire('session')->redirect($configureUrl . '#tab-import');
-                } elseif ($this->wire('input')->get('toggle_status')) {
-                    return $this->handleToggleStatus();
                 } elseif ($this->wire('input')->get('create_api_key')) {
                     $this->handleCreateApiKey();
                 } elseif ($this->wire('input')->get('delete_api_key')) {
@@ -415,7 +403,7 @@ class ProcessCollections extends Process
             'collections' => count($this->config->getCollections()),
             'global'      => $this->config->getGlobal(),
         ];
-        $this->wire('log')->save('collections', 'DEBUG STATE: ' . json_encode($info));
+        $this->debugLog('Configuration debug state: ' . json_encode($info));
 
         // Add visible debug bar to page if Tracy available
         if (class_exists('\Tracy\Debugger')) {
@@ -425,7 +413,7 @@ class ProcessCollections extends Process
 
     // ── Form handlers ─────────────────────────────────────────────────────────
 
-    private function handleToggleStatus(): string
+    private function handleToggleStatus(Collection $collection): string
     {
         $post     = $this->wire('input')->post;
         $pageId   = (int) $post->text('page_id');
@@ -439,6 +427,9 @@ class ProcessCollections extends Process
         if (!$page->id) {
             return json_encode(['ok' => false, 'error' => $this->_('Page not found')]);
         }
+        if (!$collection->containsPage($page) || !$page->editable()) {
+            throw new WirePermissionException($this->_('Page is outside this collection or is not editable'));
+        }
 
         $page->of(false);
         if ($action === 'publish') {
@@ -448,7 +439,7 @@ class ProcessCollections extends Process
         }
         $page->save(['quiet' => true]);
 
-        $this->wire('log')->save('collections', "toggleStatus: page={$pageId} action={$action}");
+        $this->debugLog("Toggle status: page={$pageId} action={$action}");
 
         return json_encode(['ok' => true, 'action' => $action]);
     }
@@ -501,7 +492,7 @@ class ProcessCollections extends Process
 
         $this->config->saveCollection($collection);
         $this->message(sprintf($this->_("Collection '%s' saved."), $key));
-        $this->wire('log')->save('collections', 'handleSaveCollection() saved key=' . $key);
+        $this->debugLog('Saved collection: ' . $key);
     }
 
     private function handleSaveGlobal(): void
@@ -554,7 +545,7 @@ class ProcessCollections extends Process
     private function handleDeleteCollection(): void
     {
         $key = $this->wire('sanitizer')->pageName($this->wire('input')->post('key'));
-        $this->wire('log')->save('collections', 'handleDeleteCollection() key=' . ($key ?: '(empty)'));
+        $this->debugLog('Delete collection: ' . ($key ?: '(empty)'));
         if (!$key) return;
 
         // Note: CSRF already validated in renderConfigure() before this method is called.
@@ -608,7 +599,7 @@ class ProcessCollections extends Process
         $params = QueryParams::fromInput($this->wire('input'));
         $params = new QueryParams(
             page:    1,
-            perPage: 10000,
+            perPage: 1000,
             search:  $params->search,
             sortBy:  $params->sortBy,
             sortDir: $params->sortDir,
@@ -632,13 +623,22 @@ class ProcessCollections extends Process
         $post = $this->wire('input')->post;
         $name = $this->wire('sanitizer')->text($post->text('key_name'));
         $days = (int) $post->text('key_expiration');
+        $validCaps = ['view', 'create', 'edit', 'delete', 'export'];
+        $requestedCaps = isset($_POST['key_caps']) && is_array($_POST['key_caps'])
+            ? $_POST['key_caps']
+            : ['view'];
+        $caps = array_values(array_filter(
+            $requestedCaps,
+            fn($cap) => is_string($cap) && in_array($cap, $validCaps, true)
+        ));
+        if (!$caps) $caps = ['view'];
 
         if (!$name) {
             $this->error($this->_('API key name is required.'));
             return;
         }
 
-        $rawKey = $this->config->createApiKey($name, $days > 0 ? $days : null);
+        $rawKey = $this->config->createApiKey($name, $days > 0 ? $days : null, $caps);
         if ($rawKey) {
             // Store in session to show once
             $this->wire('session')->set('collections_new_api_key', $rawKey);
@@ -673,5 +673,12 @@ class ProcessCollections extends Process
     private function collectionsUrl(): string
     {
         return rtrim((string) $this->wire('page')->url, '/') . '/';
+    }
+
+    private function debugLog(string $message): void
+    {
+        if ($this->wire('config')->debug) {
+            $this->wire('log')->save('collections', $message);
+        }
     }
 }

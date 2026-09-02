@@ -10,7 +10,7 @@
 ### Setup
 
 1. Go to **Configure → Global Settings**, enable **REST API** and set **API base path**
-2. Go to **Configure → API**, enter a key name and create an API key
+2. Go to **Configure → API**, enter a key name, select only the required capabilities, and create an API key
 3. Copy the raw key — it is shown **only once**
 
 ### Authentication
@@ -28,7 +28,11 @@ GET /api/products/?api_key=col_a1b2c3d4e5f6...
 Authorization: Basic base64(username:password)
 ```
 
-Authenticated PW sessions (browser cookie) are also accepted — useful for same-origin requests from PW templates.
+Authenticated PW sessions (browser cookie) are also accepted for reads. Session-authenticated writes must be same-origin, use `Content-Type: application/json`, and send the current ProcessWire CSRF value in the `X-Collections-CSRF` header. Bearer and Basic writes also require JSON for requests with a body.
+
+API-key capabilities are enforced directly. A key grants only the capabilities stored with that key and never changes the current ProcessWire user to a superuser.
+
+For safety, API creation is rejected for collections that have an additional selector. Create those pages through ProcessWire, or use an unscoped collection whose template alone defines membership; existing-page operations always verify the full template and selector.
 
 ### Endpoints
 
@@ -53,8 +57,8 @@ DELETE /api/{key}/{id}/               Delete a page
 | `per_page` | `per_page=50` | Items per page (default: 25, max: 500) |
 | `sort` | `sort=modified` | Field to sort by |
 | `dir` | `dir=desc` | Sort direction: `asc` or `desc` |
-| `filter[field]` | `filter[country]=42` | Filter by exact field value (Page ref: use ID) |
-| `fields` | `fields=title,sku,abv` | Comma-separated fields to return (overrides collection columns) |
+| `filter[field]` | `filter[country]=42` | Filter by exact field value; the field must be a configured collection column (Page ref: use ID) |
+| `fields` | `fields=title,sku,abv` | Comma-separated subset of configured collection columns to return |
 | `format` | `format=table` | `json` (default) or `table` (returns HTML snippet) |
 
 ### Response Format
@@ -171,6 +175,28 @@ curl -X POST -H "Authorization: Bearer $KEY" \
   -H "Content-Type: application/json" \
   -d '{"action": "delete", "ids": [9001, 9002]}' \
   "$BASE/products/bulk/"
+```
+
+Exports preserve the active search and allowed filters and are capped at 1,000 records per request.
+
+For a session-authenticated write rendered from a ProcessWire template, expose the current CSRF value only to that same-origin page and send it as a header:
+
+```php
+$csrf = $session->CSRF->getToken();
+echo '<script>window.collectionsCsrfValue = '
+    . json_encode($csrf['value'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+    . ';</script>';
+```
+
+```javascript
+fetch('/api/products/15598/', {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Collections-CSRF': window.collectionsCsrfValue,
+  },
+  body: JSON.stringify({ abv: 46.5 }),
+});
 ```
 
 ### JavaScript (fetch)
@@ -494,4 +520,3 @@ foreach ($wpPosts as $post) {
     ], 'col_migration_key...');
 }
 ```
-

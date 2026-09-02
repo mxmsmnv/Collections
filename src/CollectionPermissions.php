@@ -13,11 +13,16 @@ class CollectionPermissions
 
     public function __construct(
         private $user,
-        private readonly CollectionConfig $config
+        private readonly CollectionConfig $config,
+        private readonly ?array $apiKeyCaps = null
     ) {}
 
     public function can(string $capability, ?Collection $collection = null): bool
     {
+        if ($this->apiKeyCaps !== null) {
+            return in_array($capability, $this->apiKeyCaps, true);
+        }
+
         if ($this->user->isSuperuser()) return true;
 
         // Check PW permission
@@ -41,6 +46,11 @@ class CollectionPermissions
         }
 
         return false;
+    }
+
+    public function isApiKeyAuth(): bool
+    {
+        return $this->apiKeyCaps !== null;
     }
 
     public function filterVisible(array $collections): array

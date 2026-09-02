@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.9.9 — 2026-09-02
+
+### Security
+
+- API keys now enforce their stored capabilities directly and never replace the
+  current ProcessWire user with a superuser. Existing default `view` keys are
+  read-only; the API-key form now supports explicit least-privilege capability
+  selection.
+- Inline status changes and admin/API bulk operations now verify collection
+  membership for every page ID. Session and Basic-auth operations also enforce
+  native ProcessWire page access before viewing, editing, publishing, or
+  deleting a page.
+- API creation is rejected for collections with an additional selector because
+  an unsaved page cannot be proven to belong to an arbitrary ProcessWire
+  selector without creating it first.
+- Collection queries continue to include hidden and unpublished records where
+  appropriate, but now retain ProcessWire access checks. API keys may bypass
+  native visibility only within the configured collection template and
+  selector after their collection capability is approved.
+- API filters, requested response fields, write fields, sorting, and schema
+  output are restricted to configured collection fields. This closes field
+  enumeration and blind-count side channels.
+- Session-authenticated API writes now require same-origin requests and a valid
+  `X-Collections-CSRF` token; requests with bodies must use
+  `Content-Type: application/json`.
+- Escaped configurable table headings and sort attributes, rejected unsafe URL
+  schemes, normalized MapMarker coordinates, and constrained color values to
+  prevent stored HTML, URL, and CSS injection.
+- Neutralized spreadsheet formulas in CSV headers and values.
+- Removed sensitive request/CSRF debug logging, gated routine diagnostics behind
+  ProcessWire debug mode, made API enablement fail closed, added a pre-auth rate
+  limit, and serialized rate-counter updates with database advisory locks.
+
+### Changed
+
+- API and admin exports preserve allowed filters and are capped at 1,000 records
+  per request to bound memory use.
+- Added a standalone security regression check covering the release invariants.
+
 ## 1.9.8 — 2026-07-30
 
 ### Fixed

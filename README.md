@@ -86,12 +86,12 @@ iOS/Android apps consume the Collections API. API keys with expiration dates and
 
 **REST API**
 - Bearer token, query param (`?api_key=`), HTTP Basic Auth, and PW session
-- API key management with optional expiration dates and per-key capability scopes
+- API key management with optional expiration dates and enforced per-key capability scopes; keys never elevate to ProcessWire superuser
 - SHA-256 hashed keys — raw key shown only once on creation
 - Usage tracking: last used timestamp, request count
 - Rate limit: 100 requests/minute per IP per collection (HTTP 429 on excess)
 - WireCache support for GET responses (configurable TTL)
-- Endpoints for list, read, create, update, delete, bulk actions, schema, and export
+- Endpoints for list, read, create, update, delete, bulk actions, schema, and export, with collection-membership enforcement and CSRF protection for session writes
 
 **Field Types Supported**
 Text, Textarea, Integer, Float, Checkbox, URL, Email, Color (hex), Date/Datetime, Image, File, FieldtypeFileB2, FieldtypePage (single and multi), FieldtypeOptions, MapMarker, Profields Table, Profields Textareas, Profields Multiplier, Profields Repeater Matrix, Profields Combo

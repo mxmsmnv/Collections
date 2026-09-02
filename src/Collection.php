@@ -90,7 +90,7 @@ final class Collection
         return true;
     }
 
-    public function buildSelector(string $search = '', array $filters = []): string
+    public function buildSelector(string $search = '', array $filters = [], bool $checkAccess = true): string
     {
         $parts = ["template={$this->template}"];
 
@@ -101,6 +101,9 @@ final class Collection
         // Add include=all so hidden/system taxonomy pages appear
         if (!str_contains($this->selector, 'include=')) {
             $parts[] = 'include=all';
+        }
+        if ($checkAccess) {
+            $parts[] = 'check_access=1';
         }
 
         if ($search !== '') {
@@ -147,7 +150,8 @@ final class Collection
             // For Page ref fields: find matching referenced pages ONCE (not per-field)
             $pageRefParts = [];
             if ($pageRefFields) {
-                $refMatches = wire('pages')->find("title%={$safeSearch}, include=all, limit=50");
+                $accessSelector = $checkAccess ? ', check_access=1' : '';
+                $refMatches = wire('pages')->find("title%={$safeSearch}, include=all{$accessSelector}, limit=50");
                 if ($refMatches->count()) {
                     $refIdRaw = $refMatches->each('id');
                     // each('id') returns array in newer PW versions, string "1|2|3" in older
@@ -173,6 +177,7 @@ final class Collection
                 $baseSelector = "template={$this->template}";
                 if ($this->selector) $baseSelector .= ", {$this->selector}";
                 $baseSelector .= ", include=all";
+                if ($checkAccess) $baseSelector .= ', check_access=1';
 
                 $matchedIds = [];
 
@@ -207,6 +212,7 @@ final class Collection
                 // Sanitize field name (only allow valid field name chars)
                 $safeField = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$field);
                 if (!$safeField) continue;
+                if (!in_array($safeField, $this->columns, true)) continue;
                 // Sanitize value using PW's selectorValue sanitizer
                 $safeValue = wire('sanitizer')->selectorValue((string)$value);
                 $parts[] = "{$safeField}={$safeValue}";
@@ -214,5 +220,12 @@ final class Collection
         }
 
         return implode(', ', $parts);
+    }
+
+    public function containsPage($page, bool $checkAccess = true): bool
+    {
+        if (!$page || !$page->id || $page->template->name !== $this->template) return false;
+        $selector = 'id=' . (int)$page->id . ', ' . $this->buildSelector('', [], $checkAccess);
+        return wire('pages')->count($selector) > 0;
     }
 }

@@ -86,7 +86,7 @@ class CollectionConfig
                 $arr = json_decode($json, true);
                 if ($arr) $result[] = Collection::fromArray($arr);
             }
-            wire('log')->save('collections', 'getCollections from DB: count=' . count($result));
+            $this->debugLog('Loaded collections: ' . count($result));
             return $result;
         } catch (\Throwable $e) {
             wire('log')->save('collections', 'getCollections error: ' . $e->getMessage());
@@ -119,7 +119,7 @@ class CollectionConfig
                 VALUES (?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE `label` = VALUES(`label`), `data` = VALUES(`data`), `sort_order` = VALUES(`sort_order`)");
             $stmt->execute([$collection->key, $collection->label, $json, $collection->order]);
-            wire('log')->save('collections', 'saveCollection OK: key=' . $collection->key);
+            $this->debugLog('Saved collection: ' . $collection->key);
         } catch (\Throwable $e) {
             wire('log')->save('collections', 'saveCollection error: ' . $e->getMessage());
         }
@@ -138,7 +138,7 @@ class CollectionConfig
             $db   = wire('database');
             $stmt = $db->prepare("DELETE FROM `" . self::TABLE_COLLECTIONS . "` WHERE `ckey` = ?");
             $stmt->execute([$key]);
-            wire('log')->save('collections', 'deleteCollection OK: key=' . $key);
+            $this->debugLog('Deleted collection: ' . $key);
         } catch (\Throwable $e) {
             wire('log')->save('collections', 'deleteCollection error: ' . $e->getMessage());
         }
@@ -175,7 +175,7 @@ class CollectionConfig
             foreach ($settings as $k => $v) {
                 $stmt->execute([$k, json_encode($v)]);
             }
-            wire('log')->save('collections', 'saveGlobal OK: keys=' . implode(',', array_keys($settings)));
+            $this->debugLog('Saved global settings');
         } catch (\Throwable $e) {
             wire('log')->save('collections', 'saveGlobal error: ' . $e->getMessage());
         }
@@ -211,7 +211,7 @@ class CollectionConfig
             foreach ($matrix['roles'] ?? [] as $role => $caps) {
                 $stmt->execute([$role, json_encode(array_values($caps))]);
             }
-            wire('log')->save('collections', 'savePermissionsMatrix OK: roles=' . implode(',', array_keys($matrix['roles'] ?? [])));
+            $this->debugLog('Saved permissions matrix');
         } catch (\Throwable $e) {
             wire('log')->save('collections', 'savePermissionsMatrix error: ' . $e->getMessage());
         }
@@ -377,5 +377,12 @@ class CollectionConfig
             'cache_enabled'         => false,
             'cache_ttl'             => 300,
         ];
+    }
+
+    private function debugLog(string $message): void
+    {
+        if (wire('config')->debug) {
+            wire('log')->save('collections', $message);
+        }
     }
 }

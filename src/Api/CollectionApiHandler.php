@@ -34,7 +34,7 @@ class CollectionApiHandler
 
         $params = QueryParams::fromInput($input);
         $query  = new CollectionQuery($this->wire->pages);
-        $result = $query->execute($collection, $params);
+        $result = $query->execute($collection, $params, !$this->perms->isApiKeyAuth());
 
         $format = $input->get('format') ?? 'json';
         if ($format === 'table') {
@@ -48,6 +48,9 @@ class CollectionApiHandler
         }
 
         $fields = $input->get('fields') ? explode(',', (string)$input->get('fields')) : null;
+        if ($fields !== null) {
+            $fields = array_values(array_intersect($collection->columns, array_map('trim', $fields)));
+        }
         $items  = [];
         foreach ($result->items as $page) {
             $item = ['id' => $page->id, 'name' => $page->name, 'url' => $page->httpUrl, 'status' => $page->status];
@@ -71,8 +74,8 @@ class CollectionApiHandler
         $this->perms->can(CollectionPermissions::CAP_VIEW, $collection)
             || throw new CollectionApiException('Forbidden', 403);
 
-        $page = $this->wire->pages->get("id={$id}, template={$collection->template}");
-        if (!$page->id) throw new CollectionApiException("Page {$id} not found", 404);
+        $page = $this->wire->pages->get($id);
+        $this->assertPageAccess($collection, $page, CollectionPermissions::CAP_VIEW);
 
         $item = ['id' => $page->id, 'name' => $page->name, 'url' => $page->httpUrl, 'status' => $page->status];
         foreach ($collection->columns as $col) {
@@ -85,6 +88,12 @@ class CollectionApiHandler
     {
         $this->perms->can(CollectionPermissions::CAP_CREATE, $collection)
             || throw new CollectionApiException('Forbidden', 403);
+        if (trim($collection->selector) !== '') {
+            throw new CollectionApiException(
+                'Create is disabled for collections with an additional selector; create through ProcessWire or remove the scope',
+                422
+            );
+        }
 
         $template = $this->wire->templates->get($collection->template);
         if (!$template) throw new CollectionApiException("Template not found: {$collection->template}", 500);
@@ -95,12 +104,16 @@ class CollectionApiHandler
             ? $this->wire->pages->get($parentId)
             : $this->wire->pages->get(1);
         if (!$parent->id) throw new CollectionApiException("Parent page not found", 500);
+        if (!$this->perms->isApiKeyAuth() && !$parent->addable()) {
+            throw new CollectionApiException('Native page access denied', 403);
+        }
 
         $page = new Page($template);
         $page->parent = $parent;
         $page->of(false);
         foreach ($body as $field => $value) {
             if ($field === 'title') { $page->title = $value; continue; }
+            if (!in_array($field, $collection->columns, true)) continue;
             if (!$template->fieldgroup->has($field)) continue;
             $page->set($field, $value);
         }
@@ -118,12 +131,13 @@ class CollectionApiHandler
         $this->perms->can(CollectionPermissions::CAP_EDIT, $collection)
             || throw new CollectionApiException('Forbidden', 403);
 
-        $page = $this->wire->pages->get("id={$id}, template={$collection->template}");
-        if (!$page->id) throw new CollectionApiException("Page {$id} not found", 404);
+        $page = $this->wire->pages->get($id);
+        $this->assertPageAccess($collection, $page, CollectionPermissions::CAP_EDIT);
 
         $page->of(false);
         foreach ($body as $field => $value) {
             if ($field === 'title') { $page->title = $value; continue; }
+            if (!in_array($field, $collection->columns, true)) continue;
             if (!$page->template->fieldgroup->has($field)) continue;
             $page->set($field, $value);
         }
@@ -141,8 +155,8 @@ class CollectionApiHandler
         $this->perms->can(CollectionPermissions::CAP_DELETE, $collection)
             || throw new CollectionApiException('Forbidden', 403);
 
-        $page = $this->wire->pages->get("id={$id}, template={$collection->template}");
-        if (!$page->id) throw new CollectionApiException("Page {$id} not found", 404);
+        $page = $this->wire->pages->get($id);
+        $this->assertPageAccess($collection, $page, CollectionPermissions::CAP_DELETE);
 
         $this->wire->pages->delete($page, true);
         return CollectionApiResponse::success(['deleted' => true, 'id' => $id]);
@@ -162,8 +176,10 @@ class CollectionApiHandler
         $this->perms->can($cap, $collection) || throw new CollectionApiException('Forbidden', 403);
 
         $results = ['success' => 0, 'errors' => []];
-        foreach ($this->wire->pages->getById($ids) as $page) {
+        foreach (array_values(array_unique($ids)) as $id) {
+            $page = $this->wire->pages->get($id);
             try {
+                $this->assertPageAccess($collection, $page, $cap);
                 match($action) {
                     'publish'   => (function() use ($page) { $page->of(false); $page->removeStatus(Page::statusUnpublished); $page->save(); })(),
                     'unpublish' => (function() use ($page) { $page->of(false); $page->addStatus(Page::statusUnpublished); $page->save(); })(),
@@ -171,7 +187,7 @@ class CollectionApiHandler
                 };
                 $results['success']++;
             } catch (\Throwable $e) {
-                $results['errors'][] = "Page {$page->id}: {$e->getMessage()}";
+                $results['errors'][] = "Page {$id}: {$e->getMessage()}";
             }
         }
         return CollectionApiResponse::success($results);
@@ -185,7 +201,9 @@ class CollectionApiHandler
         $template = $this->wire->templates->get($collection->template);
         $fields   = [];
         if ($template) {
-            foreach ($template->fieldgroup as $field) {
+            foreach ($collection->columns as $fieldName) {
+                $field = $template->fieldgroup->getField($fieldName);
+                if (!$field) continue;
                 $fd = [
                     'name'     => $field->name,
                     'type'     => $field->type->className(),
@@ -208,9 +226,17 @@ class CollectionApiHandler
         $this->perms->can(CollectionPermissions::CAP_EXPORT, $collection)
             || throw new CollectionApiException('Forbidden', 403);
 
-        $params = new QueryParams(1, 10000, (string)($input->get('q') ?? ''), 'title', 'asc', []);
+        $requestParams = QueryParams::fromInput($input);
+        $params = new QueryParams(
+            1,
+            1000,
+            $requestParams->search,
+            $requestParams->sortBy,
+            $requestParams->sortDir,
+            $requestParams->filters
+        );
         $query  = new CollectionQuery($this->wire->pages);
-        $result = $query->execute($collection, $params);
+        $result = $query->execute($collection, $params, !$this->perms->isApiKeyAuth());
 
         $exporter = new CollectionExporter();
         $format   = $input->get('format') ?? 'csv';
@@ -220,6 +246,21 @@ class CollectionApiHandler
             $exporter->exportCsv($collection, $result);
         }
         exit;
+    }
+
+    private function assertPageAccess(Collection $collection, $page, string $capability): void
+    {
+        if (!$page || !$page->id || !$collection->containsPage($page, !$this->perms->isApiKeyAuth())) {
+            throw new CollectionApiException('Page not found in collection', 404);
+        }
+        if ($this->perms->isApiKeyAuth()) return;
+
+        $allowed = match($capability) {
+            CollectionPermissions::CAP_VIEW   => $page->viewable(),
+            CollectionPermissions::CAP_DELETE => $page->deleteable(),
+            default                           => $page->editable(),
+        };
+        if (!$allowed) throw new CollectionApiException('Native page access denied', 403);
     }
 
     private function getFieldType(string $fieldName): string

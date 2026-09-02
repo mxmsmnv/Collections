@@ -8,17 +8,20 @@ class CollectionQuery
         private $pages
     ) {}
 
-    public function execute(Collection $collection, QueryParams $params): QueryResult
+    public function execute(Collection $collection, QueryParams $params, bool $checkAccess = true): QueryResult
     {
-        $selector = $collection->buildSelector($params->search, $params->filters);
+        $selector = $collection->buildSelector($params->search, $params->filters, $checkAccess);
 
         // Sort - accept any valid field name
         $sortField = $params->sortBy;
         $systemSortable = ['id', 'name', 'status', 'created', 'modified', 'sort', 'title'];
         if (!in_array($sortField, $collection->columns, true)
-            && !in_array($sortField, $systemSortable, true)
-            && !wire('fields')->get($sortField)) {
-            $sortField = $collection->sortBy ?: 'title';
+            && !in_array($sortField, $systemSortable, true)) {
+            $configuredSort = $collection->sortBy ?: 'title';
+            $sortField = in_array($configuredSort, $collection->columns, true)
+                || in_array($configuredSort, $systemSortable, true)
+                ? $configuredSort
+                : 'title';
         }
         $sortDir = strtolower((string) $params->sortDir) === 'desc' ? '-' : '';
         $selector .= ", sort={$sortDir}{$sortField}";
@@ -46,44 +49,22 @@ class CollectionQuery
 
         $ftClass = $pwField->type->className();
 
-        // For Page reference fields: get unique referenced page IDs via SQL
+        // For Page reference fields: inspect only collection pages the current
+        // ProcessWire user may access. Direct field-table SQL would bypass page access.
         if ($ftClass === 'FieldtypePage') {
-            $template = wire('templates')->get($collection->template);
-            if (!$template) return [];
-
-            // Get the DB table for this field
-            $table = $pwField->getTable();
-            $templateId = $template->id;
-
-            try {
-                $db = wire('database');
-                // Join with pages table to filter by template, and get unique referenced page IDs
-                $sql = "SELECT DISTINCT f.data FROM `{$table}` f
-                        INNER JOIN pages p ON p.id = f.pages_id
-                        WHERE p.templates_id = :tid AND f.data > 0";
-                $params = [':tid' => $templateId];
-
-                // If collection has extra selector with simple field=value, add to query
-                // (complex selectors can't be easily translated to SQL)
-
-                $stmt = $db->prepare($sql);
-                $stmt->execute($params);
-                $refIds = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-
-                if (!$refIds) return [];
-
-                // Load referenced pages and build options
-                $options = [];
-                $refs = wire('pages')->getById($refIds);
+            $selector = $collection->buildSelector() . ', limit=500';
+            $options = [];
+            foreach ($this->pages->find($selector) as $page) {
+                $value = $page->get($field);
+                $refs = $value instanceof PageArray ? $value : [$value];
                 foreach ($refs as $ref) {
-                    if ($ref->id) $options[$ref->id] = $ref->title;
+                    if ($ref instanceof Page && $ref->id && $ref->viewable()) {
+                        $options[$ref->id] = $ref->title ?: $ref->name;
+                    }
                 }
-                asort($options); // Sort alphabetically by title
-                return $options;
-            } catch (\Throwable $e) {
-                wire('log')->save('collections', 'getFilterOptions SQL error: ' . $e->getMessage());
-                return [];
             }
+            asort($options);
+            return $options;
         }
 
         // For Options fields
@@ -99,8 +80,7 @@ class CollectionQuery
         }
 
         // Fallback: scan pages (limited)
-        $selector = "template={$collection->template}, include=all";
-        if ($collection->selector) $selector .= ", {$collection->selector}";
+        $selector = $collection->buildSelector();
         $selector .= ", limit=500";
 
         $options = [];

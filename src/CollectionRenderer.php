@@ -69,19 +69,26 @@ class CollectionRenderer extends WireData
             $isSortable = !str_contains($col, '.');
             $dir    = $isCurr && $params->sortDir === 'asc' ? 'desc' : 'asc';
             // Build sort URL preserving collection key and other params
-            $colParam = isset($_GET['col']) ? '&col=' . htmlspecialchars($_GET['col']) : '';
             $icon   = '';
             if ($isCurr) {
                 $icon = $params->sortDir === 'asc'
                     ? ' <i class="fa fa-sort-asc"></i>'
                     : ' <i class="fa fa-sort-desc"></i>';
             }
-            $safeCol = $this->sanitizer->entities($col);
+            $safeCol   = $this->sanitizer->entities($col);
+            $safeLabel = $this->sanitizer->entities((string)$label);
+            $safeDir   = $dir === 'desc' ? 'desc' : 'asc';
+            $classCol  = preg_replace('/[^a-zA-Z0-9_-]/', '-', $col);
+            $query = ['sort' => $col, 'dir' => $safeDir];
+            if (isset($_GET['col'])) {
+                $query['col'] = $this->sanitizer->pageName((string)$_GET['col']);
+            }
+            $sortUrl = $this->sanitizer->entities('?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986));
             if ($isSortable) {
-                $html .= "<th class=\"col-{$safeCol}\" data-sort=\"{$col}\" data-dir=\"{$dir}\">"
-                    . "<a href=\"?sort={$col}&dir={$dir}{$colParam}\" class=\"collections-sort-link\">{$label}{$icon}</a></th>";
+                $html .= "<th class=\"col-{$classCol}\" data-sort=\"{$safeCol}\" data-dir=\"{$safeDir}\">"
+                    . "<a href=\"{$sortUrl}\" class=\"collections-sort-link\">{$safeLabel}{$icon}</a></th>";
             } else {
-                $html .= "<th class=\"col-{$safeCol}\">{$label}</th>";
+                $html .= "<th class=\"col-{$classCol}\">{$safeLabel}</th>";
             }
         }
 
@@ -279,7 +286,12 @@ class CollectionRenderer extends WireData
 
         // ── URL ───────────────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeURL' && $value) {
-            $esc = $this->sanitizer->entities((string)$value);
+            $url = trim((string)$value);
+            $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+            $esc = $this->sanitizer->entities($url);
+            if (!in_array($scheme, ['http', 'https'], true) || !filter_var($url, FILTER_VALIDATE_URL)) {
+                return $esc;
+            }
             return "<a href='{$esc}' target='_blank' rel='noopener'>{$esc}</a>";
         }
 
@@ -292,8 +304,10 @@ class CollectionRenderer extends WireData
         // ── MapMarker ─────────────────────────────────────────────────────────
         if ($ftName === 'FieldtypeMapMarker' && is_object($value)) {
             if (!empty($value->lat) && !empty($value->lng)) {
-                $label = $this->sanitizer->entities($value->address ?: "{$value->lat}, {$value->lng}");
-                $url   = "https://maps.google.com/?q={$value->lat},{$value->lng}";
+                $lat = (float)$value->lat;
+                $lng = (float)$value->lng;
+                $label = $this->sanitizer->entities($value->address ?: "{$lat}, {$lng}");
+                $url   = 'https://maps.google.com/?q=' . rawurlencode("{$lat},{$lng}");
                 return "<a href='{$url}' target='_blank' rel='noopener' title='{$label}'><i class='fa fa-map-marker'></i> {$label}</a>";
             }
             return '<span class="uk-text-muted">—</span>';
@@ -1041,6 +1055,9 @@ class CollectionRenderer extends WireData
             : (string)$value;
         if (strpos($hex, '#') === false) $hex = '#' . ltrim($hex, '#');
         $esc = $this->sanitizer->entities($hex);
+        if (!preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $hex)) {
+            return "<code>{$esc}</code>";
+        }
         return "<span class='collections-color-swatch' style='background:{$esc}' title='{$esc}'></span> <code>{$esc}</code>";
     }
 }

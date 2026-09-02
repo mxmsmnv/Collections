@@ -267,7 +267,9 @@ The API rate limit is 100 requests per minute per IP per collection key.
 
 Do not expose raw API keys in generated code, commits, logs, screenshots, documentation examples, or client-side bundles unless the user explicitly confirms that the key is public and scoped appropriately. Prefer environment variables.
 
-In the current implementation, API-key authentication may temporarily elevate the request to a superuser so the normal permission checks pass. Treat API keys as powerful server-side secrets unless the installed project code clearly enforces narrower key scopes.
+API-key capabilities are enforced directly and do not elevate the ProcessWire user. API keys bypass native page visibility only inside the configured collection template and selector, so keep selectors narrow and grant only the required key capabilities.
+
+Session-authenticated writes require `Content-Type: application/json`, a same-origin request, and the current ProcessWire CSRF value in the `X-Collections-CSRF` header. Filters, requested fields, bulk IDs, and single-page IDs are constrained to configured collection columns and membership.
 
 ## Permissions
 

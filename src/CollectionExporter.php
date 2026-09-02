@@ -18,14 +18,14 @@ class CollectionExporter
             fn($col) => $collection->columnLabels[$col] ?? ucfirst(str_replace('_', ' ', $col)),
             $collection->columns
         ));
-        fputcsv($fh, $headers);
+        fputcsv($fh, array_map([$this, 'sanitizeCsvCell'], $headers));
 
         foreach ($result->items as $page) {
             $row = [$page->httpUrl];
             foreach ($collection->columns as $col) {
                 $row[] = $this->flattenForCsv($page, $col);
             }
-            fputcsv($fh, $row);
+            fputcsv($fh, array_map([$this, 'sanitizeCsvCell'], $row));
         }
 
         fclose($fh);
@@ -165,5 +165,14 @@ class CollectionExporter
         if ($val === null || $val === false) return null;
         if (is_object($val)) return (string)$val;
         return $val;
+    }
+
+    private function sanitizeCsvCell(mixed $value): string
+    {
+        $value = (string)$value;
+        if (preg_match('/^[\x00-\x20]*[=+\-@]/u', $value)) {
+            return "'" . $value;
+        }
+        return $value;
     }
 }

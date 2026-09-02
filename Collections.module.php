@@ -10,11 +10,11 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.8
+ * @version 1.9.9
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.8';
+    public const VERSION = '1.9.9';
 
     private ?CollectionConfig $collectionConfig = null;
 
@@ -22,7 +22,7 @@ class Collections extends WireData implements Module
     {
         return [
             'title'    => __('Collections', __FILE__),
-            'version'  => 198,
+            'version'  => 199,
             'summary'  => __('Configurable page collections with table UI and REST API', __FILE__),
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -62,7 +62,7 @@ class Collections extends WireData implements Module
         // Frontend: intercept API requests
 
         $global = $this->getConfig()->getGlobal();
-        if (!($global['api_enabled'] ?? true)) return;
+        if (!($global['api_enabled'] ?? false)) return;
 
         $requestUri = strtok($_SERVER['REQUEST_URI'] ?? '', '?');
         $pwRoot     = rtrim($this->wire('config')->urls->root, '/');
@@ -85,65 +85,71 @@ class Collections extends WireData implements Module
 
     private function handleApiRequest(string $apiBase): void
     {
+        if (!$this->consumePreAuthRateLimit()) {
+            http_response_code(429);
+            header('Content-Type: application/json');
+            header('Retry-After: 60');
+            echo json_encode([
+                'ok'      => false,
+                'error'   => 'RATE_LIMITED',
+                'message' => 'Rate limit exceeded.',
+                'status'  => 429,
+            ]);
+            exit;
+        }
+
         // Check auth: API key (Bearer token or ?api_key=), Basic Auth, or PW session
-        $apiKeyAuth = false;
+        $authMode   = 'session';
+        $apiKeyCaps = null;
+        $keyData    = null;
+        $authenticated = false;
 
-        if (!$this->wire('user')->isLoggedin()) {
-            $authenticated = false;
-            $keyData = null;
-
-            // 1. Try API key from Authorization header
-            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-            if (preg_match('/^Bearer\s+(.+)$/i', $authHeader, $m)) {
-                $keyData = $this->getConfig()->validateApiKey($m[1]);
-                if ($keyData) {
+        // Explicit API credentials take precedence over any ambient browser session.
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (preg_match('/^Bearer\s+(.+)$/i', $authHeader, $m)) {
+            $keyData = $this->getConfig()->validateApiKey($m[1]);
+            if ($keyData) {
+                $authenticated = true;
+                $authMode = 'api_key';
+                $apiKeyCaps = is_array($keyData['caps'] ?? null) ? $keyData['caps'] : [];
+            }
+        } elseif (!empty($_GET['api_key'])) {
+            $keyData = $this->getConfig()->validateApiKey((string)$_GET['api_key']);
+            if ($keyData) {
+                $authenticated = true;
+                $authMode = 'api_key';
+                $apiKeyCaps = is_array($keyData['caps'] ?? null) ? $keyData['caps'] : [];
+            }
+        } elseif ($this->wire('user')->isLoggedin()) {
+            $authenticated = true;
+        } else {
+            $user = $_SERVER['PHP_AUTH_USER'] ?? null;
+            $pass = $_SERVER['PHP_AUTH_PW'] ?? null;
+            if ($user && $pass) {
+                $u = $this->wire('session')->login($user, $pass);
+                if ($u) {
                     $authenticated = true;
-                    $apiKeyAuth = true;
+                    $authMode = 'basic';
                 }
             }
+        }
 
-            // 2. Try API key from query param
-            if (!$authenticated && !empty($_GET['api_key'])) {
-                $keyData = $this->getConfig()->validateApiKey($_GET['api_key']);
-                if ($keyData) {
-                    $authenticated = true;
-                    $apiKeyAuth = true;
-                }
-            }
+        if (!$authenticated) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'ok'      => false,
+                'error'   => 'UNAUTHORIZED',
+                'message' => 'Authentication required.',
+                'status'  => 401,
+            ]);
+            exit;
+        }
 
-            // 3. Try HTTP Basic Auth
-            if (!$authenticated) {
-                $user = $_SERVER['PHP_AUTH_USER'] ?? null;
-                $pass = $_SERVER['PHP_AUTH_PW'] ?? null;
-                if ($user && $pass) {
-                    $u = $this->wire('session')->login($user, $pass);
-                    if ($u) $authenticated = true;
-                }
-            }
-
-            if (!$authenticated) {
-                http_response_code(401);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'ok'      => false,
-                    'error'   => 'UNAUTHORIZED',
-                    'message' => 'Authentication required.',
-                    'status'  => 401,
-                ]);
-                exit;
-            }
-
-            // For API key auth: temporarily set superuser so permission checks pass
-            if ($apiKeyAuth) {
-                $su = $this->wire('users')->get('name=superuser, include=all');
-                if (!$su || !$su->id) $su = $this->wire('users')->get($this->wire('config')->superUserPageID);
-                if ($su && $su->id) {
-                    $this->wire('users')->setCurrentUser($su);
-                }
-                if ($this->wire('config')->debug) {
-                    $this->wire('log')->save('collections', "API key auth: {$keyData['name']} ({$keyData['key_prefix']}...)");
-                }
-            }
+        if ($authMode === 'api_key' && $this->wire('config')->debug) {
+            $name = $this->wire('sanitizer')->text((string)($keyData['name'] ?? ''));
+            $prefix = $this->wire('sanitizer')->text((string)($keyData['key_prefix'] ?? ''));
+            $this->wire('log')->save('collections', "API key auth: {$name} ({$prefix}...)");
         }
 
         // Parse the path from REQUEST_URI relative to apiBase
@@ -159,7 +165,14 @@ class Collections extends WireData implements Module
             $path = substr($requestUri, strlen($apiBase));
         }
 
-        $router   = new CollectionApiRouter($this->wire(), $this->getConfig(), $apiBase, $path);
+        $router   = new CollectionApiRouter(
+            $this->wire(),
+            $this->getConfig(),
+            $apiBase,
+            $path,
+            $authMode,
+            $apiKeyCaps
+        );
         $response = $router->dispatch($this->wire('input'));
 
         header('Content-Type: application/json; charset=utf-8');
@@ -171,6 +184,39 @@ class Collections extends WireData implements Module
 
         echo json_encode($response->data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         exit;
+    }
+
+    private function consumePreAuthRateLimit(): bool
+    {
+        $ip = method_exists($this->wire('session'), 'getIP')
+            ? $this->wire('session')->getIP()
+            : ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $cacheKey = 'collections_rate_auth_' . hash('sha256', (string)$ip);
+        $lockName = 'collections:' . substr(hash('sha256', $cacheKey), 0, 40);
+        $db = $this->wire('database');
+        $locked = false;
+
+        try {
+            $stmt = $db->prepare('SELECT GET_LOCK(?, 1)');
+            $stmt->execute([$lockName]);
+            $locked = (int)$stmt->fetchColumn() === 1;
+            if (!$locked) return false;
+
+            $count = (int)($this->wire('cache')->get($cacheKey) ?? 0);
+            if ($count >= 120) return false;
+            $this->wire('cache')->save($cacheKey, $count + 1, 60);
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->wire('config')->debug) {
+                $this->wire('log')->save('collections', 'Pre-auth rate limiter error: ' . $e->getMessage());
+            }
+            return false;
+        } finally {
+            if ($locked) {
+                $stmt = $db->prepare('SELECT RELEASE_LOCK(?)');
+                $stmt->execute([$lockName]);
+            }
+        }
     }
 
     private function autoload(): void
@@ -232,15 +278,14 @@ class Collections extends WireData implements Module
             if (!$perms->can(CollectionPermissions::CAP_VIEW, $col)) continue;
 
             // If collection has extra selector, check if page matches it
-            if (!empty($col->selector)) {
-                $fullSelector = "id={$page->id}, template={$col->template}, {$col->selector}, include=all";
-                $match = $this->wire('pages')->count($fullSelector);
-                if (!$match) continue;
-            }
+            if (!$col->containsPage($page)) continue;
 
-            $url = $this->collectionsAdminUrl() . "?col={$col->key}";
+            $safeKey   = $this->wire('sanitizer')->pageName($col->key);
+            $url       = $this->wire('sanitizer')->entities($this->collectionsAdminUrl() . "?col={$safeKey}");
+            $safeIcon  = $this->wire('sanitizer')->entities($this->wire('sanitizer')->name($col->icon));
+            $safeLabel = $this->wire('sanitizer')->entities($col->label);
             $links[] = "<a href='{$url}' class='uk-button uk-button-default uk-button-small'>"
-                . "<i class='fa {$col->icon}'></i> " . sprintf($this->_('View in %s'), $col->label) . '</a>';
+                . "<i class='fa {$safeIcon}'></i> " . sprintf($this->_('View in %s'), $safeLabel) . '</a>';
         }
 
         if ($links) {
@@ -263,15 +308,13 @@ class Collections extends WireData implements Module
             if (!$perms->can(CollectionPermissions::CAP_VIEW, $col)) continue;
 
             // If collection has extra selector, check if page matches
-            if (!empty($col->selector)) {
-                $fullSelector = "id={$page->id}, template={$col->template}, {$col->selector}, include=all";
-                if (!$this->wire('pages')->count($fullSelector)) continue;
-            }
+            if (!$col->containsPage($page)) continue;
 
-            $url       = $this->collectionsAdminUrl() . "?col={$col->key}";
+            $safeKey   = $this->wire('sanitizer')->pageName($col->key);
+            $url       = $this->collectionsAdminUrl() . "?col={$safeKey}";
             $actions[] = [
                 'cn'   => $this->_('Collection'),
-                'name' => sprintf($this->_('Open in %s'), $col->label),
+                'name' => sprintf($this->_('Open in %s'), $this->wire('sanitizer')->text($col->label)),
                 'url'  => $url,
             ];
         }

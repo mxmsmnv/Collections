@@ -13,12 +13,14 @@ class CollectionApiRouter
         $wire,
         private readonly CollectionConfig $config,
         string $apiBase = '',
-        string $preParsedPath = ''
+        string $preParsedPath = '',
+        private readonly string $authMode = 'session',
+        ?array $apiKeyCaps = null
     ) {
         $this->wire          = $wire;
         $this->apiBase       = $apiBase;
         $this->preParsedPath = $preParsedPath;
-        $perms               = new CollectionPermissions($wire->user, $config);
+        $perms               = new CollectionPermissions($wire->user, $config, $apiKeyCaps);
         $this->handler       = new CollectionApiHandler($config, $perms, $wire);
     }
 
@@ -38,6 +40,7 @@ class CollectionApiRouter
         $segments = $path ? explode('/', $path) : [];
 
         try {
+            $this->validateRequestSecurity($method);
             $this->checkRateLimit($segments[0] ?? 'global');
 
             // 'collections' is the list endpoint — but only if there's no actual collection with that key
@@ -107,7 +110,8 @@ class CollectionApiRouter
 
         } catch (CollectionApiException $e) {
             $codes = [400 => 'BAD_REQUEST', 401 => 'UNAUTHORIZED', 403 => 'FORBIDDEN',
-                      404 => 'NOT_FOUND', 422 => 'VALIDATION', 429 => 'RATE_LIMITED'];
+                      404 => 'NOT_FOUND', 415 => 'UNSUPPORTED_MEDIA_TYPE',
+                      422 => 'VALIDATION', 429 => 'RATE_LIMITED'];
             $code  = $codes[$e->getCode()] ?? 'SERVER_ERROR';
             return CollectionApiResponse::error($code, $e->getMessage(), $e->getCode() ?: 500);
         } catch (\WirePermissionException $e) {
@@ -118,18 +122,62 @@ class CollectionApiRouter
         }
     }
 
+    private function validateRequestSecurity(string $method): void
+    {
+        if (!in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) return;
+
+        if (in_array($method, ['POST', 'PATCH', 'PUT'], true)) {
+            $contentType = strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'] ?? '')[0]));
+            if ($contentType !== 'application/json') {
+                throw new CollectionApiException('Write requests require application/json', 415);
+            }
+        }
+
+        if ($this->authMode !== 'session') return;
+
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if ($origin !== '') {
+            $expectedOrigin = ($this->wire->config->https ? 'https://' : 'http://') . $this->wire->config->httpHost;
+            if (!hash_equals(strtolower(rtrim($expectedOrigin, '/')), strtolower(rtrim($origin, '/')))) {
+                throw new CollectionApiException('Cross-origin session write denied', 403);
+            }
+        }
+
+        $token = $this->wire->session->CSRF->getToken();
+        $received = $_SERVER['HTTP_X_COLLECTIONS_CSRF'] ?? '';
+        if ($received === '' || !hash_equals((string)$token['value'], (string)$received)) {
+            throw new CollectionApiException('Valid X-Collections-CSRF header required for session writes', 403);
+        }
+    }
+
     private function checkRateLimit(string $key): void
     {
         // WireInput has no ->ip property; use PW session IP or server fallback
         $ip = method_exists($this->wire->session, 'getIP')
             ? $this->wire->session->getIP()
             : ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-        $cacheKey = 'rate_' . md5($ip . '_' . $key);
-        $count    = (int)($this->wire->cache->get($cacheKey) ?? 0);
-        if ($count >= 100) {
-            throw new CollectionApiException('Rate limit exceeded', 429);
+        $cacheKey = 'collections_rate_' . hash('sha256', $ip . '_' . $key);
+        $lockName = 'collections:' . substr(hash('sha256', $cacheKey), 0, 40);
+        $db = $this->wire->database;
+        $locked = false;
+
+        try {
+            $stmt = $db->prepare('SELECT GET_LOCK(?, 1)');
+            $stmt->execute([$lockName]);
+            $locked = (int)$stmt->fetchColumn() === 1;
+            if (!$locked) throw new CollectionApiException('Rate limiter busy', 429);
+
+            $count = (int)($this->wire->cache->get($cacheKey) ?? 0);
+            if ($count >= 100) {
+                throw new CollectionApiException('Rate limit exceeded', 429);
+            }
+            $this->wire->cache->save($cacheKey, $count + 1, 60);
+        } finally {
+            if ($locked) {
+                $stmt = $db->prepare('SELECT RELEASE_LOCK(?)');
+                $stmt->execute([$lockName]);
+            }
         }
-        $this->wire->cache->save($cacheKey, $count + 1, 60);
     }
 
     private function getJsonBody(): array
