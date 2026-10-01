@@ -10,11 +10,11 @@ namespace ProcessWire;
  *
  * @author  Maxim Semenov <maxim@smnv.org> (smnv.org)
  * @link    https://github.com/mxmsmnv/Collections
- * @version 1.9.9
+ * @version 1.9.10
  */
 class Collections extends WireData implements Module
 {
-    public const VERSION = '1.9.9';
+    public const VERSION = '1.9.10';
 
     private ?CollectionConfig $collectionConfig = null;
 
@@ -22,7 +22,7 @@ class Collections extends WireData implements Module
     {
         return [
             'title'    => __('Collections', __FILE__),
-            'version'  => 199,
+            'version'  => '1.9.10',
             'summary'  => __('Configurable page collections with table UI and REST API', __FILE__),
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
@@ -342,7 +342,10 @@ class Collections extends WireData implements Module
 
         if ($existing->id) {
             $existing->of(false);
-            $existing->process = $this->wire('modules')->get('ProcessCollections');
+            $existing->process = $this->wire('modules')->getModule('ProcessCollections', [
+                'noPermissionCheck' => true,
+                'noInit' => true,
+            ]);
             $existing->removeStatus(Page::statusHidden);
             $existing->save();
             $this->message($this->_('Collections admin page updated.'));
@@ -352,7 +355,10 @@ class Collections extends WireData implements Module
             $collectionsPage->parent   = $admin;
             $collectionsPage->name     = 'collections';
             $collectionsPage->title    = 'Collections';
-            $collectionsPage->process  = $this->wire('modules')->get('ProcessCollections');
+            $collectionsPage->process  = $this->wire('modules')->getModule('ProcessCollections', [
+                'noPermissionCheck' => true,
+                'noInit' => true,
+            ]);
             $collectionsPage->save();
             $this->message(sprintf($this->_('Collections admin page created at: %s'), $collectionsPage->url));
         }
@@ -391,7 +397,10 @@ class Collections extends WireData implements Module
         $existing = $this->wire('pages')->get('name=collections, template=admin, parent=' . $admin->id);
         if ($existing->id) {
             $existing->of(false);
-            $existing->process = $this->wire('modules')->get('ProcessCollections');
+            $existing->process = $this->wire('modules')->getModule('ProcessCollections', [
+                'noPermissionCheck' => true,
+                'noInit' => true,
+            ]);
             $existing->removeStatus(Page::statusHidden);
             $existing->save();
             $this->message($this->_('Collections admin page process updated.'));
@@ -402,7 +411,10 @@ class Collections extends WireData implements Module
             $p->parent   = $admin;
             $p->name     = 'collections';
             $p->title    = 'Collections';
-            $p->process  = $this->wire('modules')->get('ProcessCollections');
+            $p->process  = $this->wire('modules')->getModule('ProcessCollections', [
+                'noPermissionCheck' => true,
+                'noInit' => true,
+            ]);
             $p->save();
             $this->message($this->_('Collections admin page recreated.'));
         }

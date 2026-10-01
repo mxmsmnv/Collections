@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.9.10 — 2026-09-30
+
+### Fixed
+
+- Module upgrades now resolve `ProcessCollections` without a frontend user
+  permission check or Process-module initialization. This prevents guest
+  requests from repeatedly retrying a pending upgrade when the installed
+  version changes.
+- Dashboard cards now collapse to one min-width-safe column on phones instead
+  of widening the ProcessWire admin document.
+
 ## 1.9.9 — 2026-09-02
 
 ### Security

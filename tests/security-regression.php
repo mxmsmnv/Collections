@@ -121,8 +121,15 @@ $processSource = file_get_contents(__DIR__ . '/../ProcessCollections.module.php'
 $handlerSource = file_get_contents(__DIR__ . '/../src/Api/CollectionApiHandler.php');
 $routerSource = file_get_contents(__DIR__ . '/../src/Api/CollectionApiRouter.php');
 $rendererSource = file_get_contents(__DIR__ . '/../src/CollectionRenderer.php');
+$adminStyles = file_get_contents(__DIR__ . '/../assets/collections.css');
 
 assertTrue(!str_contains($moduleSource, 'setCurrentUser'), 'API-key path still changes the current user');
+assertTrue(substr_count($moduleSource, "'noPermissionCheck' => true") === 4, 'Install or upgrade still loads ProcessCollections through a user permission check');
+assertTrue(substr_count($moduleSource, "'noInit' => true") === 4, 'Install or upgrade still initializes the admin Process module unnecessarily');
+assertTrue(str_contains($moduleSource, "'version'  => '1.9.10'"), 'Collections release version is not current');
+assertTrue(str_contains($processSource, "'version'     => '1.9.10'"), 'ProcessCollections release version is not synchronized');
+assertTrue(str_contains($adminStyles, '@media (max-width: 639px)') && str_contains($adminStyles, '.dashboard-cards { grid-template-columns: minmax(0, 1fr); }'), 'Dashboard cards are not constrained to one mobile column');
+assertTrue(str_contains($adminStyles, '.collections-layout') && str_contains($adminStyles, 'max-width: 100%;'), 'Collections workspace lacks document overflow containment');
 assertTrue(str_contains($processSource, 'handleToggleStatus(Collection $collection)'), 'Toggle handler lacks collection context');
 assertTrue(str_contains($handlerSource, 'assertPageAccess($collection, $page, $cap)'), 'API bulk path lacks per-page access checks');
 assertTrue(str_contains($routerSource, 'X-Collections-CSRF'), 'Session write CSRF header is not enforced');

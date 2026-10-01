@@ -4,6 +4,8 @@
 
 .collections-layout {
     display: flex;
+    max-width: 100%;
+    min-width: 0;
     min-height: calc(100vh - 80px);
     gap: 0;
 }
@@ -233,6 +235,12 @@ body.pw-dark .collections-bulk-bar { background: #1f2937; color: #f9fafb; border
 .dashboard-card-count { font-size: 32px; font-weight: 700; color: var(--pw-text-color, #111); line-height: 1; }
 .dashboard-card-sub { font-size: 11px; color: var(--pw-muted-color, #aaa); margin-top: 4px; }
 .dashboard-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--pw-border-color, #e5e5e5); }
+
+@media (max-width: 639px) {
+    .collections-main { padding: 16px 12px; }
+    .dashboard-cards { grid-template-columns: minmax(0, 1fr); }
+    .dashboard-card { min-width: 0; }
+}
 
 /* ── Selector note ───────────────────────────────────────────────────────── */
 
