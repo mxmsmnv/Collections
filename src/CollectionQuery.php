@@ -58,7 +58,7 @@ class CollectionQuery
                 $value = $page->get($field);
                 $refs = $value instanceof PageArray ? $value : [$value];
                 foreach ($refs as $ref) {
-                    if ($ref instanceof Page && $ref->id && $ref->viewable()) {
+                    if ($ref instanceof Page && $ref->id && $ref->viewable(false)) {
                         $options[$ref->id] = $ref->title ?: $ref->name;
                     }
                 }

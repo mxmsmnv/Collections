@@ -12,64 +12,54 @@ class CollectionConfig
 
     public function __construct(
         private $modules
-    ) {
-        $this->ensureTables();
-    }
+    ) {}
 
     // ── Table setup ───────────────────────────────────────────────────────────
 
-    private function ensureTables(): void
+    public function installTables(): void
     {
-        static $done = false;
-        if ($done) return;
-        $done = true;
-
         $db = wire('database');
-        try {
-            $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_COLLECTIONS . "` (
-                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `ckey`       VARCHAR(128) NOT NULL,
-                `label`      VARCHAR(255) NOT NULL DEFAULT '',
-                `data`       MEDIUMTEXT   NOT NULL,
-                `sort_order` INT          NOT NULL DEFAULT 0,
-                `created`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `modified`   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `ckey` (`ckey`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_COLLECTIONS . "` (
+            `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `ckey`       VARCHAR(128) NOT NULL,
+            `label`      VARCHAR(255) NOT NULL DEFAULT '',
+            `data`       MEDIUMTEXT   NOT NULL,
+            `sort_order` INT          NOT NULL DEFAULT 0,
+            `created`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `modified`   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `ckey` (`ckey`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-            $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_GLOBAL . "` (
-                `id`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name`     VARCHAR(128) NOT NULL,
-                `value`    TEXT         NOT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `name` (`name`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_GLOBAL . "` (
+            `id`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `name`     VARCHAR(128) NOT NULL,
+            `value`    TEXT         NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `name` (`name`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-            $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_PERMISSIONS . "` (
-                `id`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `role`     VARCHAR(128) NOT NULL,
-                `caps`     TEXT         NOT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `role` (`role`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_PERMISSIONS . "` (
+            `id`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `role`     VARCHAR(128) NOT NULL,
+            `caps`     TEXT         NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `role` (`role`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-            $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_API_KEYS . "` (
-                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name`       VARCHAR(255) NOT NULL DEFAULT '',
-                `key_hash`   VARCHAR(64)  NOT NULL,
-                `key_prefix` VARCHAR(8)   NOT NULL DEFAULT '',
-                `caps`       TEXT         NOT NULL,
-                `created`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `expires`    DATETIME     DEFAULT NULL,
-                `last_used`  DATETIME     DEFAULT NULL,
-                `use_count`  INT UNSIGNED NOT NULL DEFAULT 0,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `key_hash` (`key_hash`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-        } catch (\Throwable $e) {
-            wire('log')->save('collections', 'ensureTables error: ' . $e->getMessage());
-        }
+        $db->exec("CREATE TABLE IF NOT EXISTS `" . self::TABLE_API_KEYS . "` (
+            `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `name`       VARCHAR(255) NOT NULL DEFAULT '',
+            `key_hash`   VARCHAR(64)  NOT NULL,
+            `key_prefix` VARCHAR(8)   NOT NULL DEFAULT '',
+            `caps`       TEXT         NOT NULL,
+            `created`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `expires`    DATETIME     DEFAULT NULL,
+            `last_used`  DATETIME     DEFAULT NULL,
+            `use_count`  INT UNSIGNED NOT NULL DEFAULT 0,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `key_hash` (`key_hash`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
 
     // ── Collections CRUD ─────────────────────────────────────────────────────

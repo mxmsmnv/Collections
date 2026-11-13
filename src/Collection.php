@@ -129,8 +129,8 @@ final class Collection
                 }
             }
 
-            // Build text field OR parts (these can use | safely)
-            $textOrParts = [];
+            // ProcessWire accepts a field list joined by | before a shared operator.
+            $textFields = [];
             $pageRefFields = []; // fields of type FieldtypePage that need ref-title search
 
             foreach ($allSearchFields as $f) {
@@ -142,7 +142,7 @@ final class Collection
                 if ($ftName === 'FieldtypePage') {
                     $pageRefFields[] = $f;
                 } elseif (!in_array($ftName, $nonSearchable, true)) {
-                    $textOrParts[] = "{$f}%={$safeSearch}";
+                    $textFields[] = $f;
                 }
                 // Non-searchable types (Table, Matrix, Combo…) are silently skipped
             }
@@ -162,30 +162,17 @@ final class Collection
                 }
             }
 
-            // PW can't do cross-field OR with multi-value page refs in one group
-            // Solution: use text OR group, then add each page ref as OR-group
-            // Final: (title%=x), (country=id1|id2), (brand=id1|id2) — but these are AND!
-            // PW true OR requires: https://processwire.com/docs/selectors/#or-groups
-            // or-group syntax: selector1, selector2, or_selector1
+            $textSelector = $textFields ? implode('|', $textFields) . "%={$safeSearch}" : '';
 
-            if ($textOrParts && !$pageRefParts) {
-                // Simple case: only text fields
-                $parts[] = '(' . implode('|', $textOrParts) . ')';
+            if ($textSelector !== '' && !$pageRefParts) {
+                $parts[] = $textSelector;
             } elseif ($pageRefParts) {
-                // Complex case: need to combine text + page ref with OR
-                // Find all page IDs matching ANY condition, then use id=x|y|z selector
-                $baseSelector = "template={$this->template}";
-                if ($this->selector) $baseSelector .= ", {$this->selector}";
-                $baseSelector .= ", include=all";
-                if ($checkAccess) $baseSelector .= ', check_access=1';
-
+                // Combine matches from text and reference fields before applying pagination.
+                $baseSelector = implode(', ', $parts);
                 $matchedIds = [];
 
-                // Search by text fields — no limit here, paging is applied later in execute()
-                if ($textOrParts) {
-                    $textSelector = $baseSelector . ', (' . implode('|', $textOrParts) . ')';
-                    $textMatches  = wire('pages')->findIDs($textSelector);
-                    $matchedIds   = array_merge($matchedIds, $textMatches);
+                if ($textSelector !== '') {
+                    $matchedIds = wire('pages')->findIDs($baseSelector . ', ' . $textSelector);
                 }
 
                 // Search by each page ref field
@@ -204,6 +191,8 @@ final class Collection
                 } else {
                     $parts[] = 'id=0'; // No results
                 }
+            } elseif ($pageRefFields) {
+                $parts[] = 'id=0';
             }
         }
 

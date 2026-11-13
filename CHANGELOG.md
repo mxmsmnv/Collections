@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Create configuration tables during module installation and upgrade to avoid
+  repeated DDL and ProcessWire schema log growth on ordinary requests (#6).
+- Show accessible Page reference filter options for templates without frontend
+  files (#7).
+- Use ProcessWire's field OR syntax for text search, including searches that
+  also match Page reference titles (#8).
+
 ## 1.9.10 — 2026-09-30
 
 ### Fixed

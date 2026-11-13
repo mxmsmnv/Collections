@@ -15,11 +15,49 @@ final class TestSanitizer
 final class TestPages
 {
     public string $lastSelector = '';
+    public array $referenceIds = [];
 
-    public function count(string $selector): int
+    public function find(string $selector): self
     {
+        return $this;
+    }
+
+    public function each(string $field): array
+    {
+        return $this->referenceIds;
+    }
+
+    public function findIDs(string $selector): array
+    {
+        if ($selector === 'template=product, include=unpublished, check_access=1, title|body%=needle') {
+            return [12];
+        }
+        if ($selector === 'template=product, include=unpublished, check_access=1, country=42') {
+            return [13];
+        }
+        throw new \RuntimeException('Unexpected search selector: ' . $selector);
+    }
+
+    public function count(string $selector = ''): int
+    {
+        if ($selector === '') return count($this->referenceIds);
         $this->lastSelector = $selector;
         return 1;
+    }
+}
+
+final class TestFields
+{
+    public function get(string $name): object
+    {
+        return (object)['type' => new class($name) {
+            public function __construct(private string $name) {}
+
+            public function className(): string
+            {
+                return $this->name === 'country' ? 'FieldtypePage' : 'FieldtypeText';
+            }
+        }];
     }
 }
 
@@ -54,6 +92,7 @@ final class TestUser
 $services = [
     'sanitizer' => new TestSanitizer(),
     'pages' => new TestPages(),
+    'fields' => new TestFields(),
     'config' => new TestConfig(),
 ];
 
@@ -105,6 +144,22 @@ $page = (object)['id' => 42, 'template' => (object)['name' => 'product']];
 assertTrue($collection->containsPage($page), 'Valid collection member was rejected');
 assertTrue(str_contains($services['pages']->lastSelector, 'id=42'), 'Membership selector omitted the page ID');
 assertTrue(str_contains($services['pages']->lastSelector, 'parent=/shop/'), 'Membership selector omitted collection scope');
+
+$searchCollection = Collection::fromArray([
+    'template' => 'product',
+    'selector' => 'include=unpublished',
+    'searchFields' => ['title', 'body', 'country'],
+]);
+$selector = $searchCollection->buildSelector('needle');
+assertTrue(str_contains($selector, ', title|body%=needle'), 'Text search must share one operator across fields');
+
+$services['pages']->referenceIds = [42];
+$selector = $searchCollection->buildSelector('needle');
+assertTrue(str_contains($selector, ', id=12|13'), 'Mixed search must include both text and reference matches');
+
+$services['pages']->referenceIds = [];
+$referenceCollection = Collection::fromArray(['template' => 'product', 'searchFields' => ['country']]);
+assertTrue(str_contains($referenceCollection->buildSelector('needle'), ', id=0'), 'Unmatched reference search must return no rows');
 
 $perms = new CollectionPermissions(new TestUser(), new CollectionConfig(), ['view']);
 assertTrue($perms->can(CollectionPermissions::CAP_VIEW, $collection), 'View-only API key lost view capability');

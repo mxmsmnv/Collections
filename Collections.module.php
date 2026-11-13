@@ -333,6 +333,8 @@ class Collections extends WireData implements Module
 
     public function ___install(): void
     {
+        $this->getConfig()->installTables();
+
         require_once __DIR__ . '/install/permissions.php';
         installCollectionsPermissions($this->wire());
 
@@ -370,10 +372,6 @@ class Collections extends WireData implements Module
             $adminTemplate->save();
         }
 
-        $this->getConfig()->saveCollections([]);
-        $this->getConfig()->saveGlobal([]);
-        $this->getConfig()->savePermissionsMatrix([]);
-
         $this->message($this->_('Collections installed. Go to Admin > Collections to get started.'));
     }
 
@@ -392,6 +390,8 @@ class Collections extends WireData implements Module
 
     public function ___upgrade($fromVersion, $toVersion): void
     {
+        $this->getConfig()->installTables();
+
         // Fix admin page process on upgrade
         $admin    = $this->wire('pages')->get($this->wire('config')->adminRootPageID);
         $existing = $this->wire('pages')->get('name=collections, template=admin, parent=' . $admin->id);
